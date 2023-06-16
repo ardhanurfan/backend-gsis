@@ -32,7 +32,7 @@ class User extends Authenticatable
         'username',
         'university',
         'major',
-        'batch',
+        'year',
     ];
 
     /**

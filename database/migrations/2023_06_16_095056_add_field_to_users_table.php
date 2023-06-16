@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('username')->after('email')->unique();
             $table->string('university')->after('email');
             $table->string('major')->after('university');
-            $table->string('batch')->after('major');
+            $table->string('year')->after('major');
         });
     }
 
@@ -32,7 +32,7 @@ return new class extends Migration
             $table->dropColumn('username');
             $table->dropColumn('university');
             $table->dropColumn('major');
-            $table->dropColumn('batch');
+            $table->dropColumn('year');
         });
     }
 };
