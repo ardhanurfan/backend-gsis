@@ -11,15 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('gsic_users', function (Blueprint $table) {
+        Schema::create('bcc_users', function (Blueprint $table) {
             $table->foreignId('user_id')->primary()->constrained('users')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreignId('team_id')->constrained('gsic_teams')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('team_id')->nullable()->constrained('bcc_teams')->onDelete('cascade')->onUpdate('cascade');
+            $table->string('status')->default('ACTIVE');
+            $table->string('papper_url')->nullable();
+            $table->string('stream');
             $table->string('ktm_url');
             $table->string('ss_follow_url');
             $table->string('ss_poster_url');
+            $table->string('payment_url');
             $table->timestamp('approve_ktm')->nullable();
             $table->timestamp('approve_follow')->nullable();
             $table->timestamp('approve_poster')->nullable();
+            $table->timestamp('approve_payment')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('gsic_users');
+        Schema::dropIfExists('bcc_users');
     }
 };

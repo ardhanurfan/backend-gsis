@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('documentation_exhibitions', function (Blueprint $table) {
+        Schema::create('bcc_submissions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('exhibitions', 'user_id')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('team_id')->constrained('bcc_teams')->onDelete('cascade')->onUpdate('cascade');
             $table->string('url');
+            $table->integer('round');
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('documentation_exhibitions');
+        Schema::dropIfExists('bcc_submissions');
     }
 };
