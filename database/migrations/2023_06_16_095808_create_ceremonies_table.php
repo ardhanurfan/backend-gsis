@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('ceremonies', function (Blueprint $table) {
             $table->foreignId('user_id')->primary()->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             $table->string('ss_poster_url');
-            $table->timestamp('approve_poster')->nullable();
+            $table->string('approve_poster')->default('WAITING');
             $table->timestamps();
         });
     }
