@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('leader_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             $table->string('payment_url');
             $table->string('status')->default('ACTIVE');
-            $table->timestamp('approve_payment')->nullable();
+            $table->string('approve_payment')->default('WAITING');
             $table->timestamps();
         });
     }
