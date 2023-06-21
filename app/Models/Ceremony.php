@@ -24,6 +24,10 @@ class Ceremony extends Model
         'approve_poster',
     ];
 
+    public function user() {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
     public function getUrlAttributePoster($ss_poster_url)
     {
         return config('app.url').Storage::url($ss_poster_url);
