@@ -86,8 +86,7 @@ class BccController extends Controller
             'payment_url'=>'required',
         ]);
 
-        $id = Auth::id();
-        $edit = BccUser::find($id);
+        $edit = BccUser::with('user')->where('user_id',Auth::user()->id)->first();
 
         if (!$edit) {
             return ResponseFormatter::error(
