@@ -118,4 +118,48 @@ class BccController extends Controller
             );
         }
     }
+
+    function editFromAdmin(Request $request) {
+        try {
+            $request->validate([
+            'status'=>'required',
+            'approve_ktm'=>'required',
+            'approve_follow'=>'required',
+            'approve_poster'=>'required',
+            'approve_payment'=>'required',
+        ]);
+
+        $edit = BccUser::with('user')->where('user_id',Auth::user()->id)->first();
+
+        if (!$edit) {
+            return ResponseFormatter::error(
+                null,
+                'Data not found',
+                404
+            );
+        }
+
+        $edit->update([
+            'status'=>$request->status,
+            'approve_ktm'=>$request->approve_ktm,
+            'approve_follow'=>$request->approve_follow,
+            'approve_poster'=>$request->approve_poster,
+            'approve_payment'=>$request->approve_payment,
+        ]);
+
+        return ResponseFormatter::success(
+            $edit,
+            'Edit Bcc User success'
+        );
+
+        } catch (ValidationException $error) {
+            return ResponseFormatter::error([
+                'message' => 'Something when wrong',
+                'error' => array_values($error->errors())[0][0],    
+            ], 
+                'Edit Bcc User failed', 
+                500,
+            );
+        }
+    }
 }
