@@ -11,7 +11,7 @@ class BccUser extends Model
     use HasFactory;
 
     public $table = 'bcc_users';
-    // protected $primaryKey = 'user_id';
+    protected $primaryKey = 'user_id';
 
     /**
      * The attributes that are mass assignable.

@@ -27,4 +27,8 @@ Route::middleware('auth:sanctum')->group(function () {
     
     Route::post('register-bcc-user', [BccController::class, 'register']);
     Route::post('edit-bcc-user', [BccController::class, 'editFromUser']);
+    Route::post('edit-bcc-user-from-admin', [BccController::class, 'editFromAdmin']);
+    Route::post('bcc-user-submission', [BccController::class, 'submitUser']);
+    Route::post('bcc-team-submission', [BccController::class, 'submitTeam']);
+    Route::post('create-bcc-team', [BccController::class, 'createTeam']);
 });
