@@ -41,15 +41,16 @@ class CeremonyController extends Controller
     function register(Request $request){
         try{
             $request->validate([
-                'ss_poster_url'=>'required',
-                'approve_poster'=>'required|in:REJECTED,WAITING,ACCEPTED'
+                'ss_poster_url'=>'required'
             ]);
+
+            $posterFile = $request->file('ss_poster_url');
+            $posterPath = $posterFile->storeAs('public/poster', 'poster_'.uniqid().'.'.$posterFile->extension());
 
             $id = Auth::id();
             $cer_user = Ceremony::create([
                 'user_id' => $id,
-                'ss_poster_url' => $request->ss_poster_url,
-                'approve_poster' => $request->approve_poster,
+                'ss_poster_url' => $posterPath
             ]);
             return ResponseFormatter::success(
                 $cer_user,
@@ -81,9 +82,12 @@ class CeremonyController extends Controller
                     404
                 );
             }
+            $posterFile = $request->file('ss_poster_url');
+            $posterPath = $posterFile->storeAs('public/poster', 'poster_'.uniqid().'.'.$posterFile->extension());
+
 
             $edit->update([
-                'ss_poster_url'=>$request->ss_poster_url
+                'ss_poster_url'=>$posterPath
             ]);
 
             return ResponseFormatter::success(
@@ -104,7 +108,7 @@ class CeremonyController extends Controller
     function adminEdit(Request $request){
         try {
             $request->validate([
-            'approve_poster'=>'required'
+            'approve_poster'=>'required |in:REJECTED,WAITING,ACCEPTED'
             ]);
 
             $edit = Ceremony::with('user')->where('user_id',Auth::id())->first();
