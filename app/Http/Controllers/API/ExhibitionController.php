@@ -7,5 +7,6 @@ use Illuminate\Http\Request;
 
 class ExhibitionController extends Controller
 {
+    
     //
 }
