@@ -46,11 +46,14 @@ class BccController extends Controller
             'ss_follow_url'=>'required',
             'ss_poster_url'=>'required',
             'payment_url'=>'required',
-            'approve_ktm'=>'in:WAITING,REJECTED,ACCEPTED',
-            'approve_follow'=>'in:WAITING,REJECTED,ACCEPTED',
-            'approve_poster'=>'in:WAITING,REJECTED,ACCEPTED',
-            'approve_payment'=>'in:WAITING,REJECTED,ACCEPTED',
         ]);
+
+        // $ktm_url = $request->file('ktm_url');
+        // $ktm_path = $ktm_url->storeAs('public/ktm', 'urlktm_'.uniqid().'.'.$ktm_url->extension());
+        
+        // $ss_follow_url = $request->file('ss_follow_url');
+        // $ss_follow_path = $ss_follow_url->storeAs('public/follow', 'ssfollow_'.uniqid().'.'.$ss_follow_url->extension());
+
 
         $id = Auth::id();
 
@@ -63,10 +66,6 @@ class BccController extends Controller
             'ss_follow_url'=>$request->ss_follow_url,
             'ss_poster_url'=>$request->ss_poster_url,
             'payment_url'=>$request->payment_url,
-            'approve_ktm'=>$request->approve_ktm,
-            'approve_follow'=>$request->approve_follow,
-            'approve_poster'=>$request->approve_poster,
-            'approve_payment'=>$request->approve_payment,
         ]);
         return ResponseFormatter::success(
                 $bcc_user,
