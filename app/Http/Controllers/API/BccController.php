@@ -48,13 +48,18 @@ class BccController extends Controller
             'payment_url'=>'required',
         ]);
 
-        // $ktm_url = $request->file('ktm_url');
-        // $ktm_path = $ktm_url->storeAs('public/ktm', 'urlktm_'.uniqid().'.'.$ktm_url->extension());
+        $ktm_url = $request->file('ktm_url');
+        $ktm_path = $ktm_url->storeAs('public/ktm', 'ktmurl_'.uniqid().'.'.$ktm_url->extension());
         
-        // $ss_follow_url = $request->file('ss_follow_url');
-        // $ss_follow_path = $ss_follow_url->storeAs('public/follow', 'ssfollow_'.uniqid().'.'.$ss_follow_url->extension());
-
-
+        $ss_follow_url = $request->file('ss_follow_url');
+        $ss_follow_path = $ss_follow_url->storeAs('public/follow', 'ssfollow_'.uniqid().'.'.$ss_follow_url->extension());
+        
+        $ss_poster_url = $request->file('ss_poster_url');
+        $ss_poster_path = $ss_poster_url->storeAs('public/poster', 'ssposter_'.uniqid().'.'.$ss_poster_url->extension());
+        
+        $payment_url = $request->file('payment_url');
+        $payment_path = $payment_url->storeAs('public/payment', 'paymenturl_'.uniqid().'.'.$payment_url->extension());
+        
         $id = Auth::id();
 
         $bcc_user = BccUser::create([
@@ -62,10 +67,10 @@ class BccController extends Controller
             'team_id'=>$request->team_id,
             'papper_url'=>$request->papper_url,
             'stream'=>$request->stream,
-            'ktm_url'=>$request->ktm_url,
-            'ss_follow_url'=>$request->ss_follow_url,
-            'ss_poster_url'=>$request->ss_poster_url,
-            'payment_url'=>$request->payment_url,
+            'ktm_url'=>$ktm_path,
+            'ss_follow_url'=>$ss_follow_path,
+            'ss_poster_url'=>$ss_poster_path,
+            'payment_url'=>$payment_path,
         ]);
         return ResponseFormatter::success(
                 $bcc_user,
@@ -91,6 +96,19 @@ class BccController extends Controller
             'payment_url'=>'required',
         ]);
 
+        $ktm_url = $request->file('ktm_url');
+        $ktm_path = $ktm_url->storeAs('public/ktm', 'ktmurl_'.uniqid().'.'.$ktm_url->extension());
+        
+        $ss_follow_url = $request->file('ss_follow_url');
+        $ss_follow_path = $ss_follow_url->storeAs('public/follow', 'ssfollow_'.uniqid().'.'.$ss_follow_url->extension());
+        
+        $ss_poster_url = $request->file('ss_poster_url');
+        $ss_poster_path = $ss_poster_url->storeAs('public/poster', 'ssposter_'.uniqid().'.'.$ss_poster_url->extension());
+        
+        $payment_url = $request->file('payment_url');
+        $payment_path = $payment_url->storeAs('public/payment', 'paymenturl_'.uniqid().'.'.$payment_url->extension());
+        
+
         $edit = BccUser::with('user')->where('user_id',Auth::user()->id)->first();
 
         if (!$edit) {
@@ -102,10 +120,10 @@ class BccController extends Controller
         }
 
         $edit->update([
-            'ktm_url'=>$request->ktm_url,
-            'ss_follow_url'=>$request->ss_follow_url,
-            'ss_poster_url'=>$request->ss_poster_url,
-            'payment_url'=>$request->payment_url,
+            'ktm_url'=>$ktm_path,
+            'ss_follow_url'=>$ss_follow_path,
+            'ss_poster_url'=>$ss_poster_path,
+            'payment_url'=>$payment_path,
         ]);
 
         return ResponseFormatter::success(
@@ -176,6 +194,9 @@ class BccController extends Controller
         $id = Auth::user()->id;
         $submit = BccUser::with('user')->where('user_id',$id)->first();
 
+        $papper_url = $request->file('papper_url');
+        $papper_path = $papper_url->storeAs('public/papperBccUser', 'papperurl_'.uniqid().'.'.$papper_url->extension());
+
         if (!$submit) {
             return ResponseFormatter::error(
                 null,
@@ -185,7 +206,7 @@ class BccController extends Controller
         }
 
         $submit->update([
-            'papper_url'=>$request->papper_url,
+            'papper_url'=>$papper_path,
         ]);
         
         return ResponseFormatter::success(
@@ -210,10 +231,14 @@ class BccController extends Controller
                 'url'=>'required',
                 'round'=>'required',
         ]);
+
+        
+        $url = $request->file('url');
+        $url_path = $url->storeAs('public/urlBccTeam', 'url_'.uniqid().'.'.$url->extension());
     
         $submit =  BccSubmission::create([
             'team_id' => $request->team_id,
-            'url'=>$request->url,
+            'url'=>$url_path,
             'round'=>$request->round,
         ]);
 
@@ -242,11 +267,15 @@ class BccController extends Controller
                 'status'=>'required|in:ACTIVE,INACTIVE',
                 'approve_payment'=>'required|in:WAITING,REJECTED,ACCEPTED',
         ]);
+
+        
+        $payment_url = $request->file('payment_url');
+        $payment_url_path = $payment_url->storeAs('public/paymentUrl', 'url_'.uniqid().'.'.$payment_url->extension());
     
         $create =  BccTeam::create([
             'team_name' => $request->team_name,
             'leader_id'=>$request->leader_id,
-            'payment_url'=>$request->payment_url,
+            'payment_url'=>$payment_url_path,
             'status'=>$request->status,
             'approve_payment'=>$request->approve_payment,
         ]);
