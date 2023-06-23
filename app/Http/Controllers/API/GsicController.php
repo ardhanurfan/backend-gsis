@@ -41,7 +41,7 @@ class GsicController extends Controller
     function register(Request $request) {
         try {
             $request->validate([
-            'team_name'=>'required',
+            'team_name'=>['required', 'string', 'unique:bcc_teams,team_name'],
             'ktm_url_leader'=>'required',
             'ktm_url_1'=>'required',
             'ktm_url_2'=>'required',
@@ -58,36 +58,64 @@ class GsicController extends Controller
 
         $id = Auth::id();
 
+        $payment_url = $request->file('payment_url');
+        $payment_path = $payment_url->storeAs('public/payment', 'paymenturl_'.uniqid().'.'.$payment_url->extension());
+
         $gsic_team = GsicTeam::create([
             'team_name' => $request->team_name,
-            'payment_url' => $request->payment_url,
-            'team_name' => $request->team_name,
             'leader_id'=> $id,
-            'payment_url' => $request->payment_url,
+            'payment_url' => $payment_path,
         ]);
+
+        $ktm_url = $request->file('ktm_url_leader');
+        $ktm_path = $ktm_url->storeAs('public/ktm', 'ktmurl_'.uniqid().'.'.$ktm_url->extension());
+
+        $ss_follow_url = $request->file('ss_follow_url_leader');
+        $ss_follow_path = $ss_follow_url->storeAs('public/follow', 'followurl_'.uniqid().'.'.$ss_follow_url->extension());
+        
+        $ss_poster_url = $request->file('ss_poster_url_leader');
+        $ss_poster_path = $ss_poster_url->storeAs('public/poster', 'posterurl_'.uniqid().'.'.$ss_poster_url->extension());
 
         $gsic_user_leader = GsicUser::create([
             'team_id' => $gsic_team->id,
             'user_id' => $id,
-            'ktm_url' => $request->ktm_url_leader,
-            'ss_follow_url' => $request->ss_follow_url_leader,
-            'ss_poster_url' => $request->ss_poster_url_leader,
+            'ktm_url' => $ktm_path,
+            'ss_follow_url' => $ss_follow_path,
+            'ss_poster_url' => $ss_poster_path,
         ]);
+
+        $ktm_url = $request->file('ktm_url_1');
+        $ktm_path = $ktm_url->storeAs('public/ktm', 'ktmurl_'.uniqid().'.'.$ktm_url->extension());
+
+        $ss_follow_url = $request->file('ss_follow_url_1');
+        $ss_follow_path = $ss_follow_url->storeAs('public/follow', 'followurl_'.uniqid().'.'.$ss_follow_url->extension());
+
+        $ss_poster_url = $request->file('ss_poster_url_1');
+        $ss_poster_path = $ss_poster_url->storeAs('public/poster', 'posterurl_'.uniqid().'.'.$ss_poster_url->extension());
 
         $gsic_user_1 = GsicUser::create([
             'team_id' => $gsic_team->id,
             'user_id' => $request->user_id_1,
-            'ktm_url' => $request->ktm_url_1,
-            'ss_follow_url' => $request->ss_follow_url_1,
-            'ss_poster_url' => $request->ss_poster_url_1,
+            'ktm_url' => $ktm_path,
+            'ss_follow_url' => $ss_follow_path,
+            'ss_poster_url' => $ss_poster_path,
         ]);
+
+        $ktm_url = $request->file('ktm_url_2');
+        $ktm_path = $ktm_url->storeAs('public/ktm', 'ktmurl_'.uniqid().'.'.$ktm_url->extension());
+
+        $ss_follow_url = $request->file('ss_follow_url_2');
+        $ss_follow_path = $ss_follow_url->storeAs('public/follow', 'followurl_'.uniqid().'.'.$ss_follow_url->extension());
+
+        $ss_poster_url = $request->file('ss_poster_url_2');
+        $ss_poster_path = $ss_poster_url->storeAs('public/poster', 'posterurl_'.uniqid().'.'.$ss_poster_url->extension());
 
         $gsic_user_2 = GsicUser::create([
             'team_id' => $gsic_team->id,
             'user_id' => $request->user_id_2,
-            'ktm_url' => $request->ktm_url_2,
-            'ss_follow_url' => $request->ss_follow_url_2,
-            'ss_poster_url' => $request->ss_poster_url_2,
+            'ktm_url' => $ktm_path,
+            'ss_follow_url' => $ss_follow_path,
+            'ss_poster_url' => $ss_poster_path,
         ]);
 
         return ResponseFormatter::success(
@@ -104,6 +132,26 @@ class GsicController extends Controller
             );
         }
     }
+
+    function editFromUser(Request $request) {
+        try {
+            $gsic_team = GsicTeam::findOrFail($id);
+            $gsic_team->update($request->all());
+            return ResponseFormatter::success(
+                $gsic_team,
+                'Update GSIC team successfully'
+            );
+        } catch (ValidationException $error) {
+            return ResponseFormatter::error([
+                'message' => 'Something when wrong',
+                'error' => array_values($error->errors())[0][0],    
+            ], 
+                'Update GSIC team failed', 
+                500,
+            );
+        }
+    }
+
 
     //
 }
