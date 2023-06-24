@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use App\Models\BccSubmission;
 use App\Models\BccTeam;
 use Illuminate\Support\Facades\Auth;
@@ -47,20 +48,21 @@ class BccController extends Controller
             'ss_poster_url'=>'required',
             'payment_url'=>'required',
         ]);
+        $id = Auth::id();
+        $name = Auth::user()->name;
 
         $ktm_url = $request->file('ktm_url');
-        $ktm_path = $ktm_url->storeAs('public/ktm', 'ktmurl_'.uniqid().'.'.$ktm_url->extension());
+        $ktm_path = $ktm_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
         
         $ss_follow_url = $request->file('ss_follow_url');
-        $ss_follow_path = $ss_follow_url->storeAs('public/follow', 'ssfollow_'.uniqid().'.'.$ss_follow_url->extension());
+        $ss_follow_path = $ss_follow_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ss_follow_url->getClientOriginalName()));
         
         $ss_poster_url = $request->file('ss_poster_url');
-        $ss_poster_path = $ss_poster_url->storeAs('public/poster', 'ssposter_'.uniqid().'.'.$ss_poster_url->extension());
+        $ss_poster_path = $ss_poster_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
         
         $payment_url = $request->file('payment_url');
-        $payment_path = $payment_url->storeAs('public/payment', 'paymenturl_'.uniqid().'.'.$payment_url->extension());
+        $payment_path = $payment_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$payment_url->getClientOriginalName()));
         
-        $id = Auth::id();
 
         $bcc_user = BccUser::create([
             'user_id'=> $id,
@@ -72,6 +74,16 @@ class BccController extends Controller
             'ss_poster_url'=>$ss_poster_path,
             'payment_url'=>$payment_path,
         ]);
+
+        $get = config('app.url').Storage::url($ktm_path);
+        $bcc_user->ktm_url = $get;
+        $get = config('app.url').Storage::url($ss_follow_path);
+        $bcc_user->ss_follow_url = $get;
+        $get = config('app.url').Storage::url($ss_poster_path);
+        $bcc_user->ss_poster_url = $get;
+        $get = config('app.url').Storage::url($payment_path);
+        $bcc_user->payment_url = $get;
+
         return ResponseFormatter::success(
                 $bcc_user,
                 'Create Bcc User successfully'
@@ -96,17 +108,19 @@ class BccController extends Controller
             'payment_url'=>'required',
         ]);
 
+        $name = Auth::user()->name;
+
         $ktm_url = $request->file('ktm_url');
-        $ktm_path = $ktm_url->storeAs('public/ktm', 'ktmurl_'.uniqid().'.'.$ktm_url->extension());
+        $ktm_path = $ktm_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
         
         $ss_follow_url = $request->file('ss_follow_url');
-        $ss_follow_path = $ss_follow_url->storeAs('public/follow', 'ssfollow_'.uniqid().'.'.$ss_follow_url->extension());
+        $ss_follow_path = $ss_follow_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ss_follow_url->getClientOriginalName()));
         
         $ss_poster_url = $request->file('ss_poster_url');
-        $ss_poster_path = $ss_poster_url->storeAs('public/poster', 'ssposter_'.uniqid().'.'.$ss_poster_url->extension());
+        $ss_poster_path = $ss_poster_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
         
         $payment_url = $request->file('payment_url');
-        $payment_path = $payment_url->storeAs('public/payment', 'paymenturl_'.uniqid().'.'.$payment_url->extension());
+        $payment_path = $payment_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$payment_url->getClientOriginalName()));
         
 
         $edit = BccUser::with('user')->where('user_id',Auth::user()->id)->first();
@@ -126,6 +140,15 @@ class BccController extends Controller
             'payment_url'=>$payment_path,
         ]);
 
+        $get = config('app.url').Storage::url($ktm_path);
+        $edit->ktm_url = $get;
+        $get = config('app.url').Storage::url($ss_follow_path);
+        $edit->ss_follow_url = $get;
+        $get = config('app.url').Storage::url($ss_poster_path);
+        $edit->ss_poster_url = $get;
+        $get = config('app.url').Storage::url($payment_path);
+        $edit->payment_url = $get;
+        
         return ResponseFormatter::success(
             $edit,
             'Edit Bcc User success'
@@ -193,9 +216,10 @@ class BccController extends Controller
         ]);
         $id = Auth::user()->id;
         $submit = BccUser::with('user')->where('user_id',$id)->first();
-
+        $name = Auth::user()->name;
+ 
         $papper_url = $request->file('papper_url');
-        $papper_path = $papper_url->storeAs('public/papperBccUser', 'papperurl_'.uniqid().'.'.$papper_url->extension());
+        $papper_path = $papper_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$papper_url->getClientOriginalName()));
 
         if (!$submit) {
             return ResponseFormatter::error(
@@ -208,7 +232,8 @@ class BccController extends Controller
         $submit->update([
             'papper_url'=>$papper_path,
         ]);
-        
+        $get = config('app.url').Storage::url($papper_path);
+        $submit->papper_url = $get;
         return ResponseFormatter::success(
             $submit,
             'Submit papper success'
@@ -227,21 +252,26 @@ class BccController extends Controller
     function submitTeam(Request $request) {
         try {
             $request->validate([
-                'team_id'=>'required',
                 'url'=>'required',
                 'round'=>'required',
         ]);
+        $bcc_user = BccUser::with('user')->where('user_id',Auth::user()->id)->first();
+        $user_team_id = $bcc_user->team_id;
+
+        $team_name = BccTeam::with('users')->where('id', $user_team_id)->find('team_name');
 
         
         $url = $request->file('url');
-        $url_path = $url->storeAs('public/urlBccTeam', 'url_'.uniqid().'.'.$url->extension());
+        $url_path = $url->storeAs('public/bcc/'.str_replace(' ','_',$team_name), str_replace(' ','_',$url->getClientOriginalName()));
     
         $submit =  BccSubmission::create([
-            'team_id' => $request->team_id,
+            'team_id' => $user_team_id,
             'url'=>$url_path,
             'round'=>$request->round,
         ]);
 
+        $get = config('app.url').Storage::url($url_path);
+        $submit->payment_url = $get;
 
         return ResponseFormatter::success(
             $submit,
@@ -262,25 +292,27 @@ class BccController extends Controller
         try {
             $request->validate([
                 'team_name'=>['required', 'string', 'unique:bcc_teams,team_name'],
-                'leader_id'=>['required'],
-                'payment_url'=>['required', 'string'],
-                'status'=>'required|in:ACTIVE,INACTIVE',
-                'approve_payment'=>'required|in:WAITING,REJECTED,ACCEPTED',
+                'payment_url'=>'required',
         ]);
 
+
+        $id = Auth::user()->id;
         
         $payment_url = $request->file('payment_url');
-        $payment_url_path = $payment_url->storeAs('public/paymentUrl', 'url_'.uniqid().'.'.$payment_url->extension());
+        $payment_url_path = $payment_url->storeAs('public/bcc/'.str_replace(' ','_',$request->team_name), str_replace(' ','_',$payment_url->getClientOriginalName()));
     
         $create =  BccTeam::create([
             'team_name' => $request->team_name,
-            'leader_id'=>$request->leader_id,
+            'leader_id'=>$id,
             'payment_url'=>$payment_url_path,
-            'status'=>$request->status,
-            'approve_payment'=>$request->approve_payment,
         ]);
 
-
+        $user = BccUser::with('user')->where('user_id',Auth::user()->id)->first();
+        $user->update([
+            'team_id'=>$create->id
+        ]);
+        $get = config('app.url').Storage::url($payment_url_path);
+        $create->payment_url = $get;
         return ResponseFormatter::success(
             $create,
             'Create Team success'
