@@ -21,10 +21,10 @@ return new class extends Migration
             $table->string('ss_follow_url');
             $table->string('ss_poster_url');
             $table->string('payment_url');
-            $table->timestamp('approve_ktm')->nullable();
-            $table->timestamp('approve_follow')->nullable();
-            $table->timestamp('approve_poster')->nullable();
-            $table->timestamp('approve_payment')->nullable();
+            $table->string('approve_ktm')->default('WAITING');
+            $table->string('approve_follow')->default('WAITING');
+            $table->string('approve_poster')->default('WAITING');
+            $table->string('approve_payment')->default('WAITING');
             $table->timestamps();
         });
     }
