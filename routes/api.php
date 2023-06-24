@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AnnouncementController;
 use App\Http\Controllers\API\UniversityController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\CeremonyController;
@@ -22,6 +23,12 @@ Route::get('ceremony',[CeremonyController::class, 'all']);
 
 Route::get('universities', [UniversityController::class, 'all']);
 
+Route::get('announcement',[AnnouncementController::class, 'all']);
+Route::post('add-announcement',[AnnouncementController::class, 'add']);
+Route::post('edit-announcement',[AnnouncementController::class, 'edit']);
+Route::post('delete-announcement',[AnnouncementController::class, 'delete']);
+
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [UserController::class, 'get']);
     Route::post('logout', [UserController::class, 'logout']);
@@ -30,4 +37,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('register-ceremony', [CeremonyController::class,'register']);
     Route::post('edit-ceremony-user', [CeremonyController::class,'userEdit']);
     Route::post('edit-ceremony-admin', [CeremonyController::class,'adminEdit']);
+    Route::get('announcement-by-user',[AnnouncementController::class, 'getByUser']);
 });
