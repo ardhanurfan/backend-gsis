@@ -1,5 +1,7 @@
 <?php
 
+use App\Notifications\RegistrationEmail;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,4 +27,9 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+});
+
+Route::get('/test-mail', function (){
+    Notification::route('mail', 'ardhanurfan@gmail.com')->notify(new RegistrationEmail("Ardhan"));
+    return 'Sent';
 });
