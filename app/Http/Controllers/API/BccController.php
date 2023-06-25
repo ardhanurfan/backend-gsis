@@ -271,7 +271,7 @@ class BccController extends Controller
         ]);
 
         $get = config('app.url').Storage::url($url_path);
-        $submit->payment_url = $get;
+        $submit->url = $get;
 
         return ResponseFormatter::success(
             $submit,

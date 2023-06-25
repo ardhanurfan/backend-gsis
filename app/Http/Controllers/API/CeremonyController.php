@@ -6,7 +6,9 @@ use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Ceremony;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class CeremonyController extends Controller
@@ -52,6 +54,10 @@ class CeremonyController extends Controller
                 'user_id' => $id,
                 'ss_poster_url' => $posterPath
             ]);
+
+            $get = config('app.url').Storage::url($posterPath);
+            $cer_user->ss_poster_url = $get;
+
             return ResponseFormatter::success(
                 $cer_user,
                 'Create Ceremony User successfully'
@@ -69,10 +75,6 @@ class CeremonyController extends Controller
 
     function userEdit(Request $request){
         try {
-            $request->validate([
-            'ss_poster_url'=>'required'
-            ]);
-
             $edit = Ceremony::with('user')->where('user_id',Auth::id())->first();
 
             if (!$edit) {
@@ -82,22 +84,33 @@ class CeremonyController extends Controller
                     404
                 );
             }
+
             $posterFile = $request->file('ss_poster_url');
-            $posterPath = $posterFile->storeAs('public/poster', 'poster_'.uniqid().'.'.$posterFile->extension());
+            if ($posterFile) {
+                // Untuk hapus di storage
+                unlink(public_path($edit->ss_poster_url));
 
-
-            $edit->update([
-                'ss_poster_url'=>$posterPath
-            ]);
+                // Upload file lagi
+                $posterPath = $posterFile->storeAs('public/ceremony/'.str_replace(' ','_',Auth::user()->name), str_replace(' ','_',$posterFile->getClientOriginalName()));
+    
+                // Update DB
+                $edit->update([
+                    'ss_poster_url'=>$posterPath
+                ]);
+    
+                // Biar di get bentuknya URL
+                $get = config('app.url').Storage::url($posterPath);
+                $edit->ss_poster_url = $get;
+            }
 
             return ResponseFormatter::success(
                 $edit,
                 'Edit Ceremony User success'
             );
-        } catch (ValidationException $error) {
+        } catch (Exception $error) {
             return ResponseFormatter::error([
                 'message' => 'Something when wrong',
-                'error' => array_values($error->errors())[0][0],    
+                'error' => $error,    
             ], 
                 'Edit Ceremony User failed', 
                 500,

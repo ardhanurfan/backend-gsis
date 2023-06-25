@@ -10,7 +10,7 @@ use Illuminate\Validation\ValidationException;
 use App\Helpers\ResponseFormatter;
 use App\Models\GsicSubmission;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Storage;
 
 class GsicController extends Controller
 {
@@ -58,9 +58,10 @@ class GsicController extends Controller
         ]);
 
         $id = Auth::id();
+        $team_name = $request->team_name;
 
         $payment_url = $request->file('payment_url');
-        $payment_path = $payment_url->storeAs('public/payment', 'paymenturl_'.uniqid().'.'.$payment_url->extension());
+        $payment_path = $payment_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$payment_url->getClientOriginalName()));
 
         $gsic_team = GsicTeam::create([
             'team_name' => $request->team_name,
@@ -69,13 +70,13 @@ class GsicController extends Controller
         ]);
 
         $ktm_url = $request->file('ktm_url_leader');
-        $ktm_path = $ktm_url->storeAs('public/ktm', 'ktmurl_'.uniqid().'.'.$ktm_url->extension());
+        $ktm_path = $ktm_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
 
         $ss_follow_url = $request->file('ss_follow_url_leader');
-        $ss_follow_path = $ss_follow_url->storeAs('public/follow', 'followurl_'.uniqid().'.'.$ss_follow_url->extension());
+        $ss_follow_path = $ss_follow_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_follow_url->getClientOriginalName()));
         
         $ss_poster_url = $request->file('ss_poster_url_leader');
-        $ss_poster_path = $ss_poster_url->storeAs('public/poster', 'posterurl_'.uniqid().'.'.$ss_poster_url->extension());
+        $ss_poster_path = $ss_poster_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
 
         $gsic_user_leader = GsicUser::create([
             'team_id' => $gsic_team->id,
@@ -86,13 +87,13 @@ class GsicController extends Controller
         ]);
 
         $ktm_url = $request->file('ktm_url_1');
-        $ktm_path = $ktm_url->storeAs('public/ktm', 'ktmurl_'.uniqid().'.'.$ktm_url->extension());
+        $ktm_path = $ktm_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
 
         $ss_follow_url = $request->file('ss_follow_url_1');
-        $ss_follow_path = $ss_follow_url->storeAs('public/follow', 'followurl_'.uniqid().'.'.$ss_follow_url->extension());
+        $ss_follow_path = $ss_follow_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_follow_url->getClientOriginalName()));
 
         $ss_poster_url = $request->file('ss_poster_url_1');
-        $ss_poster_path = $ss_poster_url->storeAs('public/poster', 'posterurl_'.uniqid().'.'.$ss_poster_url->extension());
+        $ss_poster_path = $ss_poster_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
 
         $gsic_user_1 = GsicUser::create([
             'team_id' => $gsic_team->id,
@@ -103,13 +104,13 @@ class GsicController extends Controller
         ]);
 
         $ktm_url = $request->file('ktm_url_2');
-        $ktm_path = $ktm_url->storeAs('public/ktm', 'ktmurl_'.uniqid().'.'.$ktm_url->extension());
+        $ktm_path = $ktm_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
 
         $ss_follow_url = $request->file('ss_follow_url_2');
-        $ss_follow_path = $ss_follow_url->storeAs('public/follow', 'followurl_'.uniqid().'.'.$ss_follow_url->extension());
+        $ss_follow_path = $ss_follow_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_follow_url->getClientOriginalName()));
 
         $ss_poster_url = $request->file('ss_poster_url_2');
-        $ss_poster_path = $ss_poster_url->storeAs('public/poster', 'posterurl_'.uniqid().'.'.$ss_poster_url->extension());
+        $ss_poster_path = $ss_poster_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
 
         $gsic_user_2 = GsicUser::create([
             'team_id' => $gsic_team->id,
@@ -118,6 +119,9 @@ class GsicController extends Controller
             'ss_follow_url' => $ss_follow_path,
             'ss_poster_url' => $ss_poster_path,
         ]);
+
+        $get = config('app.url').Storage::url($payment_url);
+        $gsic_team->payment_url = $get;
 
         return ResponseFormatter::success(
             $gsic_team,
@@ -152,12 +156,9 @@ class GsicController extends Controller
                 'payment_url'=>'required',
         ]);
 
+        $user = GsicUser::with('user')->where('user_id',Auth::user()->id)->first();
+        $team_id = $user->team_id;
         
-        $payment_url = $request->file('payment_url');
-        $payment_path = $payment_url->storeAs('public/payment', 'paymenturl_'.uniqid().'.'.$payment_url->extension());
-        
-        $team_id = GsicUser::with('user')->where('user_id',Auth::user()->id)->first()->team_id;
-
         $edit = GsicTeam::find($team_id);
         if (!$edit) {
             return ResponseFormatter::error(
@@ -166,6 +167,11 @@ class GsicController extends Controller
                 404
             );
         }
+        
+        $team_name = $edit->team_name;
+
+        $payment_url = $request->file('payment_url');
+        $payment_path = $payment_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$payment_url->getClientOriginalName()));
 
         $edit->update([
             'payment_url' => $payment_path,
@@ -182,13 +188,13 @@ class GsicController extends Controller
         }
 
         $ktm_url = $request->file('ktm_url_leader');
-        $ktm_path = $ktm_url->storeAs('public/ktm', 'ktmurl_'.uniqid().'.'.$ktm_url->extension());
-        
+        $ktm_path = $ktm_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
+
         $ss_follow_url = $request->file('ss_follow_url_leader');
-        $ss_follow_path = $ss_follow_url->storeAs('public/follow', 'ssfollow_'.uniqid().'.'.$ss_follow_url->extension());
+        $ss_follow_path = $ss_follow_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_follow_url->getClientOriginalName()));
         
         $ss_poster_url = $request->file('ss_poster_url_leader');
-        $ss_poster_path = $ss_poster_url->storeAs('public/poster', 'ssposter_'.uniqid().'.'.$ss_poster_url->extension());
+        $ss_poster_path = $ss_poster_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
 
         $edit->update([
             'ktm_url' => $ktm_path,
@@ -207,13 +213,13 @@ class GsicController extends Controller
         }
 
         $ktm_url = $request->file('ktm_url_1');
-        $ktm_path = $ktm_url->storeAs('public/ktm', 'ktmurl_'.uniqid().'.'.$ktm_url->extension());
+        $ktm_path = $ktm_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
 
         $ss_follow_url = $request->file('ss_follow_url_1');
-        $ss_follow_path = $ss_follow_url->storeAs('public/follow', 'ssfollow_'.uniqid().'.'.$ss_follow_url->extension());
+        $ss_follow_path = $ss_follow_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_follow_url->getClientOriginalName()));
 
         $ss_poster_url = $request->file('ss_poster_url_1');
-        $ss_poster_path = $ss_poster_url->storeAs('public/poster', 'ssposter_'.uniqid().'.'.$ss_poster_url->extension());
+        $ss_poster_path = $ss_poster_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
 
         $edit->update([
             'ktm_url' => $ktm_path,
@@ -232,13 +238,13 @@ class GsicController extends Controller
         }
 
         $ktm_url = $request->file('ktm_url_2');
-        $ktm_path = $ktm_url->storeAs('public/ktm', 'ktmurl_'.uniqid().'.'.$ktm_url->extension());
+        $ktm_path = $ktm_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
 
         $ss_follow_url = $request->file('ss_follow_url_2');
-        $ss_follow_path = $ss_follow_url->storeAs('public/follow', 'ssfollow_'.uniqid().'.'.$ss_follow_url->extension());
+        $ss_follow_path = $ss_follow_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_follow_url->getClientOriginalName()));
 
         $ss_poster_url = $request->file('ss_poster_url_2');
-        $ss_poster_path = $ss_poster_url->storeAs('public/poster', 'ssposter_'.uniqid().'.'.$ss_poster_url->extension());
+        $ss_poster_path = $ss_poster_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
 
         $edit->update([
             'ktm_url' => $ktm_path,
@@ -367,15 +373,20 @@ class GsicController extends Controller
                 'round'=>'required',
         ]);
 
-        
+        $team_name = GsicTeam::where('id', $request->team_id)->first()->team_name;
+
         $url = $request->file('url');
-        $url_path = $url->storeAs('public/urlBccTeam', 'url_'.uniqid().'.'.$url->extension());
+        $url_path = $url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$url->getClientOriginalName()));
     
         $submit =  GsicSubmission::create([
             'team_id' => $request->team_id,
             'url'=>$url_path,
             'round'=>$request->round,
         ]);
+
+        $get = config('app.url').Storage::url($url_path);
+        $submit->url = $get;
+
         return ResponseFormatter::success(
             $submit,
             'Submit papper success'
