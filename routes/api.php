@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\CeremonyController;
+use App\Http\Controllers\API\ExhibitionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,5 +32,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('edit-ceremony-admin', [CeremonyController::class,'adminEdit']);
 
     Route::post('register-exhibition', [ExhibitionController::class,'register']);
-    Route::post('edit-exhibition-user', [ExhibitionController::class,'userEdit']);
+    Route::post('edit-exhibition-user', [ExhibitionController::class,'editFromUser']);
 });
