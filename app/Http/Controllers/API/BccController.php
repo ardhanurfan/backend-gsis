@@ -100,54 +100,66 @@ class BccController extends Controller
     }
 
     function editFromUser(Request $request) {
+        $edit = BccUser::with('user')->where('user_id',Auth::user()->id)->first();
+
         try {
-            $request->validate([
-            'ktm_url'=>'required',
-            'ss_follow_url'=>'required',
-            'ss_poster_url'=>'required',
-            'payment_url'=>'required',
-        ]);
+            if(!$edit) {
+                return ResponseFormatter::error(
+                    null,
+                    'Data not found',
+                    404
+                );
+            }
 
         $name = Auth::user()->name;
 
         $ktm_url = $request->file('ktm_url');
-        $ktm_path = $ktm_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
-        
-        $ss_follow_url = $request->file('ss_follow_url');
-        $ss_follow_path = $ss_follow_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ss_follow_url->getClientOriginalName()));
-        
-        $ss_poster_url = $request->file('ss_poster_url');
-        $ss_poster_path = $ss_poster_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
-        
-        $payment_url = $request->file('payment_url');
-        $payment_path = $payment_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$payment_url->getClientOriginalName()));
-        
+        if($ktm_url){
+            unlink(public_path($edit->ktm_url));
+            $ktm_path = $ktm_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
+            $edit->update([
+                'ktm_url'=>$ktm_path
+            ]);
 
-        $edit = BccUser::with('user')->where('user_id',Auth::user()->id)->first();
-
-        if (!$edit) {
-            return ResponseFormatter::error(
-                null,
-                'Data not found',
-                404
-            );
+            $get = config('app.url').Storage::url($ktm_path);
+            $edit->ktm_url = $get;
         }
 
-        $edit->update([
-            'ktm_url'=>$ktm_path,
-            'ss_follow_url'=>$ss_follow_path,
-            'ss_poster_url'=>$ss_poster_path,
-            'payment_url'=>$payment_path,
-        ]);
+        $ss_follow_url = $request->file('ss_follow_url');
+        if($ss_follow_url){
+            unlink(public_path($edit->ss_follow_url));
+            $ss_follow_path = $ss_follow_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ss_follow_url->getClientOriginalName()));
+            $edit->update([
+                'ss_follow_url'=>$ss_follow_path
+            ]);
 
-        $get = config('app.url').Storage::url($ktm_path);
-        $edit->ktm_url = $get;
-        $get = config('app.url').Storage::url($ss_follow_path);
-        $edit->ss_follow_url = $get;
-        $get = config('app.url').Storage::url($ss_poster_path);
-        $edit->ss_poster_url = $get;
-        $get = config('app.url').Storage::url($payment_path);
-        $edit->payment_url = $get;
+            $get = config('app.url').Storage::url($ss_follow_path);
+            $edit->ss_follow_url = $get;
+        }
+
+        $ss_poster_url = $request->file('ss_poster_url');
+        if($ss_poster_url){
+            unlink(public_path($edit->ss_poster_url));
+            $ss_poster_path = $ss_poster_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
+            $edit->update([
+                'ss_poster_url'=>$ss_poster_path
+            ]);
+
+            $get = config('app.url').Storage::url($ss_poster_path);
+            $edit->ss_poster_url = $get;
+        }
+        
+        $payment_url = $request->file('payment_url');
+        if($payment_url){
+            unlink(public_path($edit->payment_url));
+            $payment_path = $payment_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$payment_url->getClientOriginalName()));
+            $edit->update([
+                'payment_url'=>$payment_path
+            ]);
+
+            $get = config('app.url').Storage::url($payment_path);
+            $edit->payment_url = $get;
+        }
         
         return ResponseFormatter::success(
             $edit,
