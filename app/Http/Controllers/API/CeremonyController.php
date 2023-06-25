@@ -45,7 +45,7 @@ class CeremonyController extends Controller
             ]);
 
             $posterFile = $request->file('ss_poster_url');
-            $posterPath = $posterFile->storeAs('public/poster', 'poster_'.uniqid().'.'.$posterFile->extension());
+            $posterPath = $posterFile->storeAs('public/ceremony/'.str_replace(' ','_',Auth::user()->name), str_replace(' ','_',$posterFile->getClientOriginalName()));
 
             $id = Auth::id();
             $cer_user = Ceremony::create([
