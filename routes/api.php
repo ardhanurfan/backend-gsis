@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\AnnouncementController;
 use App\Http\Controllers\API\UniversityController;
+use App\Http\Controllers\API\BccController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\CeremonyController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,8 @@ Route::post('edit-announcement',[AnnouncementController::class, 'edit']);
 Route::post('delete-announcement',[AnnouncementController::class, 'delete']);
 
 
+Route::get('bcc-user', [BccController::class, 'all']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [UserController::class, 'get']);
     Route::post('logout', [UserController::class, 'logout']);
@@ -38,4 +41,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('edit-ceremony-user', [CeremonyController::class,'userEdit']);
     Route::post('edit-ceremony-admin', [CeremonyController::class,'adminEdit']);
     Route::get('announcement-by-user',[AnnouncementController::class, 'getByUser']);
+    Route::post('register-bcc-user', [BccController::class, 'register']);
+    Route::post('edit-bcc-user', [BccController::class, 'editFromUser']);
+    Route::post('edit-bcc-user-from-admin', [BccController::class, 'editFromAdmin']);
+    Route::post('bcc-user-submission', [BccController::class, 'submitUser']);
+    Route::post('bcc-team-submission', [BccController::class, 'submitTeam']);
+    Route::post('create-bcc-team', [BccController::class, 'createTeam']);
 });
