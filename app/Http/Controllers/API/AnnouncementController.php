@@ -9,8 +9,11 @@ use App\Models\BccUser;
 use App\Models\Ceremony;
 use App\Models\Exhibition;
 use App\Models\GsicUser;
+use App\Models\User;
+use App\Notifications\AnnouncementEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
 class AnnouncementController extends Controller
@@ -111,6 +114,37 @@ class AnnouncementController extends Controller
                 'description' => $request->description,
                 'status' => $request->status,
             ]);
+
+
+            // Kirim ke email
+            if ($request->status == "SENT") {
+                if ($request->type == "Ceremony") {
+                    $ceremony_id = Ceremony::select('user_id');
+                    $users = User::where('id', $ceremony_id)->exists();
+
+                    Notification::send($users, new AnnouncementEmail($request->description));
+                } else if ($request->type == "Exhibition") {
+                    $exhibit_id = Exhibition::select('user_id');
+                    $users = User::where('id', $exhibit_id)->exists();
+
+                    Notification::send($users, new AnnouncementEmail($request->description));
+                } else if ($request->type == "BCC") {
+                    $bcc_id = BccUser::select('user_id');
+                    $users = User::where('id', $bcc_id)->exists();
+
+                    Notification::send($users, new AnnouncementEmail($request->description));
+                } else if ($request->type == "GSIC") {
+                    $gsic_id = GsicUser::select('user_id');
+                    $users = User::where('id', $gsic_id)->exists();
+
+                    Notification::send($users, new AnnouncementEmail($request->description));
+                } else {
+                    $users = User::all();
+                    
+                    Notification::send($users, new AnnouncementEmail($request->description));
+                }
+            }
+
             return ResponseFormatter::success(
                 $edit,
                 'Create announcement User successfully'
