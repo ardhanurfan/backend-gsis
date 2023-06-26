@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Models\GsicUser;
+use App\Models\User;
 use App\Models\GsicTeam;
+use App\Models\GsicUser;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
-use App\Helpers\ResponseFormatter;
 use App\Models\GsicSubmission;
+use App\Helpers\ResponseFormatter;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class GsicController extends Controller
 {
@@ -51,8 +52,8 @@ class GsicController extends Controller
             'ss_poster_url_leader'=>'required',
             'ss_poster_url_1'=>'required',
             'ss_poster_url_2'=>'required',
-            'user_id_1'=>'required',
-            'user_id_2'=>'required',
+            'email_user_1'=>'required',
+            'email_user_2'=>'required',
             'payment_url'=>'required',
         ]);
 
@@ -77,13 +78,15 @@ class GsicController extends Controller
         $ss_poster_url = $request->file('ss_poster_url_leader');
         $ss_poster_path = $ss_poster_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
 
-        $gsic_user_leader = GsicUser::create([
-            'team_id' => $gsic_team->id,
+        GsicUser::create([
             'user_id' => $id,
+            'team_id' => $gsic_team->id,
             'ktm_url' => $ktm_path,
             'ss_follow_url' => $ss_follow_path,
             'ss_poster_url' => $ss_poster_path,
         ]);
+
+        $id = User::where('email', $request->email_user_1)->first()->id;
 
         $ktm_url = $request->file('ktm_url_1');
         $ktm_path = $ktm_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
@@ -94,13 +97,15 @@ class GsicController extends Controller
         $ss_poster_url = $request->file('ss_poster_url_1');
         $ss_poster_path = $ss_poster_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
 
-        $gsic_user_1 = GsicUser::create([
+        GsicUser::create([
+            'user_id' => $id,
             'team_id' => $gsic_team->id,
-            'user_id' => $request->user_id_1,
             'ktm_url' => $ktm_path,
             'ss_follow_url' => $ss_follow_path,
             'ss_poster_url' => $ss_poster_path,
         ]);
+
+        $id = User::where('email', $request->email_user_2)->first()->id;
 
         $ktm_url = $request->file('ktm_url_2');
         $ktm_path = $ktm_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
@@ -111,9 +116,9 @@ class GsicController extends Controller
         $ss_poster_url = $request->file('ss_poster_url_2');
         $ss_poster_path = $ss_poster_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
 
-        $gsic_user_2 = GsicUser::create([
+        GsicUser::create([
+            'user_id' => $id,
             'team_id' => $gsic_team->id,
-            'user_id' => $request->user_id_2,
             'ktm_url' => $ktm_path,
             'ss_follow_url' => $ss_follow_path,
             'ss_poster_url' => $ss_poster_path,
@@ -137,20 +142,10 @@ class GsicController extends Controller
     function editFromUser(Request $request) {
         try {
             $request->validate([
-                'ktm_url_leader'=>'required',
-                'ktm_url_1'=>'required',
-                'ktm_url_2'=>'required',
-                'ss_follow_url_leader'=>'required',
-                'ss_follow_url_1'=>'required',
-                'ss_follow_url_2'=>'required',
-                'ss_poster_url_leader'=>'required',
-                'ss_poster_url_1'=>'required',
-                'ss_poster_url_2'=>'required',
                 'user_id_1'=>'required',
                 'user_id_2'=>'required',
                 'leader_id'=>'required',
-                'payment_url'=>'required',
-        ]);
+            ]);
 
         $user = GsicUser::with('user')->where('user_id',Auth::user()->id)->first();
         $team_id = $user->team_id;
@@ -167,14 +162,15 @@ class GsicController extends Controller
         $team_name = $edit->team_name;
 
         $payment_url = $request->file('payment_url');
-        $payment_path = $payment_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$payment_url->getClientOriginalName()));
-
-        $edit->update([
-            'payment_url' => $payment_path,
-        ]);
+        if ($payment_url) {
+            unlink(public_path(str_replace(config('app.url'),'',$edit->payment_url)));
+            $payment_path = $payment_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$payment_url->getClientOriginalName()));
+            $edit->update([
+                'payment_url' => $payment_path,
+            ]);
+        }
 
         $edit = GsicUser::with('user')->where('user_id',$request->leader_id)->first();
-
         if(!$edit){
             return ResponseFormatter::error(
                 null,
@@ -183,23 +179,35 @@ class GsicController extends Controller
             );
         }
 
-        $ktm_url = $request->file('ktm_url_leader');
-        $ktm_path = $ktm_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
+        $ktm_url_leader = $request->file('ktm_url_leader');
+        if ($ktm_url_leader) {
+            unlink(public_path(str_replace(config('app.url'),'',$edit->ktm_url)));
+            $ktm_path_leader = $ktm_url_leader->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url_leader->getClientOriginalName()));
+            $edit->update([
+                'ktm_url' => $ktm_path_leader,
+            ]);
+        }
 
-        $ss_follow_url = $request->file('ss_follow_url_leader');
-        $ss_follow_path = $ss_follow_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_follow_url->getClientOriginalName()));
+        $ss_follow_url_leader = $request->file('ss_follow_url_leader');
+        if ($ss_follow_url_leader) {
+            unlink(public_path(str_replace(config('app.url'),'',$edit->ss_follow_url)));
+            $ss_follow_path_leader = $ss_follow_url_leader->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_follow_url_leader->getClientOriginalName()));
+            $edit->update([
+                'ss_follow_url' => $ss_follow_path_leader,
+            ]);
+        }
         
-        $ss_poster_url = $request->file('ss_poster_url_leader');
-        $ss_poster_path = $ss_poster_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
+        $ss_poster_url_leader = $request->file('ss_poster_url_leader');
+        if ($ss_poster_url_leader) {
+             unlink(public_path(str_replace(config('app.url'),'',$edit->ss_poster_url)));
+            $ss_poster_path_leader = $ss_poster_url_leader->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url_leader->getClientOriginalName()));
+            $edit->update([
+                'ss_poster_url' => $ss_poster_path_leader,
+            ]);
+        }
 
-        $edit->update([
-            'ktm_url' => $ktm_path,
-            'ss_follow_url' => $ss_follow_path,
-            'ss_poster_url' => $ss_poster_path,
-        ]);
 
         $edit = GsicUser::with('user')->where('user_id',$request->user_id_1)->first();
-
         if(!$edit){
             return ResponseFormatter::error(
                 null,
@@ -208,23 +216,34 @@ class GsicController extends Controller
             );
         }
 
-        $ktm_url = $request->file('ktm_url_1');
-        $ktm_path = $ktm_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
+        $ktm_url_user_1 = $request->file('ktm_url_user_1');
+        if ($ktm_url_user_1) {
+            unlink(public_path(str_replace(config('app.url'),'',$edit->ktm_url)));
+            $ktm_path_user_1 = $ktm_url_user_1->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url_user_1->getClientOriginalName()));
+            $edit->update([
+                'ktm_url' => $ktm_path_user_1,
+            ]);
+        }
 
-        $ss_follow_url = $request->file('ss_follow_url_1');
-        $ss_follow_path = $ss_follow_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_follow_url->getClientOriginalName()));
-
-        $ss_poster_url = $request->file('ss_poster_url_1');
-        $ss_poster_path = $ss_poster_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
-
-        $edit->update([
-            'ktm_url' => $ktm_path,
-            'ss_follow_url' => $ss_follow_path,
-            'ss_poster_url' => $ss_poster_path,
-        ]);
+        $ss_follow_url_user_1 = $request->file('ss_follow_url_user_1');
+        if ($ss_follow_url_user_1) {
+            unlink(public_path(str_replace(config('app.url'),'',$edit->ss_follow_url)));
+            $ss_follow_path_user_1 = $ss_follow_url_user_1->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_follow_url_user_1->getClientOriginalName()));
+            $edit->update([
+                'ss_follow_url' => $ss_follow_path_user_1,
+            ]);
+        }
+        
+        $ss_poster_url_user_1 = $request->file('ss_poster_url_user_1');
+        if ($ss_poster_url_user_1) {
+             unlink(public_path(str_replace(config('app.url'),'',$edit->ss_poster_url)));
+            $ss_poster_path_user_1 = $ss_poster_url_user_1->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url_user_1->getClientOriginalName()));
+            $edit->update([
+                'ss_poster_url' => $ss_poster_path_user_1,
+            ]);
+        }
 
         $edit = GsicUser::with('user')->where('user_id',$request->user_id_2)->first();
-
         if(!$edit){
             return ResponseFormatter::error(
                 null,
@@ -233,20 +252,32 @@ class GsicController extends Controller
             );
         }
 
-        $ktm_url = $request->file('ktm_url_2');
-        $ktm_path = $ktm_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
+        $ktm_url_user_2 = $request->file('ktm_url_user_2');
+        if ($ktm_url_user_2) {
+            unlink(public_path(str_replace(config('app.url'),'',$edit->ktm_url)));
+            $ktm_path_user_2 = $ktm_url_user_2->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url_user_2->getClientOriginalName()));
+            $edit->update([
+                'ktm_url' => $ktm_path_user_2,
+            ]);
+        }
 
-        $ss_follow_url = $request->file('ss_follow_url_2');
-        $ss_follow_path = $ss_follow_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_follow_url->getClientOriginalName()));
-
-        $ss_poster_url = $request->file('ss_poster_url_2');
-        $ss_poster_path = $ss_poster_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
-
-        $edit->update([
-            'ktm_url' => $ktm_path,
-            'ss_follow_url' => $ss_follow_path,
-            'ss_poster_url' => $ss_poster_path,
-        ]);
+        $ss_follow_url_user_2 = $request->file('ss_follow_url_user_2');
+        if ($ss_follow_url_user_2) {
+            unlink(public_path(str_replace(config('app.url'),'',$edit->ss_follow_url)));
+            $ss_follow_path_user_2 = $ss_follow_url_user_2->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_follow_url_user_2->getClientOriginalName()));
+            $edit->update([
+                'ss_follow_url' => $ss_follow_path_user_2,
+            ]);
+        }
+        
+        $ss_poster_url_user_2 = $request->file('ss_poster_url_user_2');
+        if ($ss_poster_url_user_2) {
+             unlink(public_path(str_replace(config('app.url'),'',$edit->ss_poster_url)));
+            $ss_poster_path_user_2 = $ss_poster_url_user_2->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url_user_2->getClientOriginalName()));
+            $edit->update([
+                'ss_poster_url' => $ss_poster_path_user_2,
+            ]);
+        }
 
         return ResponseFormatter::success(
             'Edit GSIC User success'
@@ -266,20 +297,20 @@ class GsicController extends Controller
     function editFromAdmin(Request $request) {
         try {
             $request->validate([
-                'approve_ktm_leader'=>'required|in:WAITING,REJECTED,ACCEPTED',
-                'approve_ktm_1'=>'required|in:WAITING,REJECTED,ACCEPTED',
-                'approve_ktm_2'=>'required|in:WAITING,REJECTED,ACCEPTED',
-                'approve_follow_leader'=>'required|in:WAITING,REJECTED,ACCEPTED',
-                'approve_follow_1'=>'required|in:WAITING,REJECTED,ACCEPTED',
-                'approve_follow_2'=>'required|in:WAITING,REJECTED,ACCEPTED',
-                'approve_poster_leader'=>'required|in:WAITING,REJECTED,ACCEPTED',
-                'approve_poster_1'=>'required|in:WAITING,REJECTED,ACCEPTED',
-                'approve_poster_2'=>'required|in:WAITING,REJECTED,ACCEPTED',
+                'approve_ktm_leader'=>'in:WAITING,REJECTED,ACCEPTED',
+                'approve_ktm_1'=>'in:WAITING,REJECTED,ACCEPTED',
+                'approve_ktm_2'=>'in:WAITING,REJECTED,ACCEPTED',
+                'approve_follow_leader'=>'in:WAITING,REJECTED,ACCEPTED',
+                'approve_follow_1'=>'in:WAITING,REJECTED,ACCEPTED',
+                'approve_follow_2'=>'in:WAITING,REJECTED,ACCEPTED',
+                'approve_poster_leader'=>'in:WAITING,REJECTED,ACCEPTED',
+                'approve_poster_1'=>'in:WAITING,REJECTED,ACCEPTED',
+                'approve_poster_2'=>'in:WAITING,REJECTED,ACCEPTED',
                 'user_id_1'=>'required',
                 'user_id_2'=>'required',
                 'leader_id'=>'required',
                 'approve_payment'=>'required',
-                'status'=>'required|in:ACTIVE,INACTIVE'
+                'status'=>'in:ACTIVE,INACTIVE'
         ]);
         
         $team_id = GsicTeam::where('leader_id',$request->leader_id)->first();
@@ -293,12 +324,13 @@ class GsicController extends Controller
             );
         }
 
-        $edit->update([
-            'approve_payment' => $request->approve_payment,
-        ]);
+        if ($request->approve_payment) {
+            $edit->update([
+                'approve_payment' => $request->approve_payment,
+            ]);
+        }
 
         $edit = GsicUser::with('user')->where('user_id',$request->leader_id)->first();
-
         if(!$edit){
             return ResponseFormatter::error(
                 null,
@@ -306,31 +338,23 @@ class GsicController extends Controller
                 404
             );
         }
-
-        $edit->update([
-            'approve_ktm' => $request->approve_ktm_leader,
-            'approve_follow' => $request->approve_ktm_leader,
-            'approve_poster' => $request->approve_poster_leader,
-        ]);
-
-        $edit = GsicUser::with('user')->where('user_id',$request->user_id_1)->first();
-
-        if(!$edit){
-            return ResponseFormatter::error(
-                null,
-                'Data not found',
-                404
-            );
+        if ($request->approve_ktm_leader) {
+            $edit->update([
+                'approve_ktm' => $request->approve_ktm_leader,
+            ]);
+        }
+        if ($request->approve_follow_leader) {
+            $edit->update([
+                'approve_follow' => $request->approve_follow_leader,
+            ]);
+        }
+        if ($request->approve_poster_leader) {
+            $edit->update([
+                'approve_poster' => $request->approve_poster_leader,
+            ]);
         }
         
-        $edit->update([
-            'approve_ktm' => $request->approve_ktm_1,
-            'approve_follow' => $request->approve_ktm_1,
-            'approve_poster' => $request->approve_poster_1,
-        ]);
-
-        $edit = GsicUser::with('user')->where('user_id',$request->user_id_2)->first();
-
+        $edit = GsicUser::with('user')->where('user_id',$request->user_id_1)->first();
         if(!$edit){
             return ResponseFormatter::error(
                 null,
@@ -338,13 +362,45 @@ class GsicController extends Controller
                 404
             );
         }
+        if ($request->approve_ktm_1) {
+            $edit->update([
+                'approve_ktm' => $request->approve_ktm_1,
+            ]);
+        }
+        if ($request->approve_follow_1) {
+            $edit->update([
+                'approve_follow' => $request->approve_follow_1,
+            ]);
+        }
+        if ($request->approve_poster_1) {
+            $edit->update([
+                'approve_poster' => $request->approve_poster_1,
+            ]);
+        }
 
-
-        $edit->update([
-            'approve_ktm' => $request->approve_ktm_2,
-            'approve_follow' => $request->approve_ktm_2,
-            'approve_poster' => $request->approve_poster_2,
-        ]);
+        $edit = GsicUser::with('user')->where('user_id',$request->user_id_2)->first();
+        if(!$edit){
+            return ResponseFormatter::error(
+                null,
+                'Data not found',
+                404
+            );
+        }
+        if ($request->approve_ktm_2) {
+            $edit->update([
+                'approve_ktm' => $request->approve_ktm_2,
+            ]);
+        }
+        if ($request->approve_follow_2) {
+            $edit->update([
+                'approve_follow' => $request->approve_follow_2,
+            ]);
+        }
+        if ($request->approve_poster_2) {
+            $edit->update([
+                'approve_poster' => $request->approve_poster_2,
+            ]);
+        }
 
         return ResponseFormatter::success(
             'Edit GSIC User success'
@@ -364,18 +420,19 @@ class GsicController extends Controller
     function submitTeam(Request $request) {
         try {
             $request->validate([
-                'team_id'=>'required',
                 'url'=>'required',
                 'round'=>'required',
         ]);
 
-        $team_name = GsicTeam::where('id', $request->team_id)->first()->team_name;
+        $gsic_user = GsicUser::where('user_id',Auth::id())->first();
+        $user_team_id = $gsic_user->team_id;
+        $team_name = GsicTeam::find($user_team_id)->team_name;
 
         $url = $request->file('url');
         $url_path = $url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$url->getClientOriginalName()));
     
         $submit =  GsicSubmission::create([
-            'team_id' => $request->team_id,
+            'team_id' => $user_team_id,
             'url'=>$url_path,
             'round'=>$request->round,
         ]);
@@ -395,4 +452,37 @@ class GsicController extends Controller
         }
     }
 
+    function editSubmitTeam(Request $request) {
+        try {
+            $request->validate([
+                'url'=>'required',
+                'round'=>'required',
+        ]);
+        $gsic_user = GsicUser::where('user_id',Auth::id())->first();
+        $user_team_id = $gsic_user->team_id;
+        $team_name = GsicTeam::find($user_team_id)->team_name;
+
+        $submission = GsicSubmission::where('team_id', $user_team_id)->where('round', $request->round)->first();
+
+        $url = $request->file('url');
+        unlink(public_path(str_replace(config('app.url'),'',$submission->url)));
+        $papper_path = $url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$url->getClientOriginalName()));
+        $submission->update([
+            'url'=>$papper_path
+        ]);
+
+        return ResponseFormatter::success(
+            $submission,
+            'Edit papper success'
+        );
+        } catch (ValidationException $error) {
+            return ResponseFormatter::error([
+                'message' => 'Something when wrong',
+                'error' => array_values($error->errors())[0][0],    
+            ], 
+                'Edit papper failed', 
+                500,
+            );
+        }
+    }
 }

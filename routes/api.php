@@ -5,6 +5,7 @@ use App\Http\Controllers\API\UniversityController;
 use App\Http\Controllers\API\BccController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\CeremonyController;
+use App\Http\Controllers\API\GsicController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,8 +31,13 @@ Route::post('edit-announcement',[AnnouncementController::class, 'edit']);
 Route::post('delete-announcement',[AnnouncementController::class, 'delete']);
 
 Route::get('bcc-user', [BccController::class, 'all']);
+Route::get('bcc-team', [BccController::class, 'allTeam']);
 Route::post('edit-bcc-user-from-admin', [BccController::class, 'editFromAdmin']);
 Route::post('edit-bcc-team-from-admin', [BccController::class, 'editFromAdminTeam']);
+
+Route::get('gsic', [GsicController::class, 'all']);
+Route::post('edit-gsic-user', [GsicController::class,'editFromUser']);
+Route::post('edit-gsic-admin', [GsicController::class,'editFromAdmin']);
 
 Route::post('edit-ceremony-admin', [CeremonyController::class,'adminEdit']);
 
@@ -52,4 +58,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('bcc-team-submission', [BccController::class, 'submitTeam']);
     Route::post('edit-bcc-team', [BccController::class, 'editFromTeam']);
     Route::post('edit-bcc-team-submission', [BccController::class, 'editSubmitTeam']);
+
+    Route::post('register-gsic', [GsicController::class,'register']);
+    Route::post('gsic-submission', [GsicController::class,'submitTeam']);
+    Route::post('edit-gsic-submission', [GsicController::class,'editSubmitTeam']);
 });

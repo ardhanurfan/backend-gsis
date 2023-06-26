@@ -21,6 +21,8 @@ class GsicUser extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'user_id',
+        'team_id',
         'ktm_url',
         'ss_follow_url',
         'ss_poster_url',

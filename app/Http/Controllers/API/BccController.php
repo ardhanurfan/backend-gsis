@@ -42,6 +42,31 @@ class BccController extends Controller
         );
     }
 
+    function allTeam(Request $request) {
+        $team_id = $request->input('team_id');
+        
+        if ($team_id){
+            $bcc_team = BccTeam::with('users')->where('id',$team_id)->first();
+            if ($bcc_team) {
+                return ResponseFormatter::success(
+                    $bcc_team,
+                    'Data peserta berhasil diambil' 
+                );
+            }else{
+                return ResponseFormatter::error(
+                    null,
+                    'Data peserta tidak ada',
+                    404
+                );
+            }
+        }
+        $bcc_team = BccTeam::with('users');
+        return ResponseFormatter::success(
+            $bcc_team->get(),
+            'Data peserta berhasil diambil' 
+        );
+    }
+
     function register(Request $request) {
         try {
             $request->validate([
@@ -447,9 +472,9 @@ class BccController extends Controller
                 'url'=>'required',
                 'round'=>'required',
         ]);
-        $bcc_user = BccUser::with('user')->where('user_id',Auth::id())->first();
+        $bcc_user = BccUser::where('user_id',Auth::id())->first();
         $user_team_id = $bcc_user->team_id;
-        $team_name = BccTeam::with('users')->find($user_team_id)->team_name;
+        $team_name = BccTeam::find($user_team_id)->team_name;
 
         $submission = BccSubmission::where('team_id', $user_team_id)->where('round', $request->round)->first();
 
