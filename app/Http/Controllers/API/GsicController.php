@@ -15,13 +15,13 @@ use Illuminate\Validation\ValidationException;
 class GsicController extends Controller
 {
     function all(Request $request){
-        $user_id = $request->input('user_id');
+        $team_id = $request->input('team_id');
         
-        if ($user_id){
-            $gsic_user = GsicUser::with('user')->where('user_id',$user_id)->first();
-            if ($gsic_user) {
+        if ($team_id){
+            $gsic_team = GsicTeam::with('users')->where('id',$team_id)->first();
+            if ($gsic_team) {
                 return ResponseFormatter::success(
-                    $gsic_user,
+                    $gsic_team,
                     'Data peserta berhasil diambil' 
                 );
             }else{
@@ -32,11 +32,29 @@ class GsicController extends Controller
                 );
             }
         }
-        $gsic_user = GsicUser::with('user');
+        $gsic_team = GsicTeam::with('users');
         return ResponseFormatter::success(
-            $gsic_user->get(),
+            $gsic_team->get(),
             'Data peserta berhasil diambil' 
         );
+    }
+
+    function myTeam(Request $request){
+        $id = Auth::id();
+        $team_id = GsicUser::where('user_id',$id)->first()->team_id;
+        $gsic_team = GsicTeam::with('users')->where('id',$team_id)->first();
+        if ($gsic_team) {
+            return ResponseFormatter::success(
+                $gsic_team,
+                'Data peserta berhasil diambil' 
+            );
+        }else{
+            return ResponseFormatter::error(
+                null,
+                'Data peserta tidak ada',
+                404
+            );
+        }
     }
 
     function register(Request $request) {
@@ -147,7 +165,7 @@ class GsicController extends Controller
                 'leader_id'=>'required',
             ]);
 
-        $user = GsicUser::with('user')->where('user_id',Auth::user()->id)->first();
+        $user = GsicUser::with('user')->where('user_id',$request->leader_id)->first();
         $team_id = $user->team_id;
         
         $edit = GsicTeam::find($team_id);
@@ -306,16 +324,16 @@ class GsicController extends Controller
                 'approve_poster_leader'=>'in:WAITING,REJECTED,ACCEPTED',
                 'approve_poster_1'=>'in:WAITING,REJECTED,ACCEPTED',
                 'approve_poster_2'=>'in:WAITING,REJECTED,ACCEPTED',
+                'approve_payment'=>'in:WAITING,REJECTED,ACCEPTED',
                 'user_id_1'=>'required',
                 'user_id_2'=>'required',
                 'leader_id'=>'required',
-                'approve_payment'=>'required',
                 'status'=>'in:ACTIVE,INACTIVE'
         ]);
         
-        $team_id = GsicTeam::where('leader_id',$request->leader_id)->first();
+        $team_id = GsicTeam::where('leader_id',$request->leader_id)->first()->id;
 
-        $edit = GsicTeam::find($team_id);
+        $edit = GsicTeam::where('id',$team_id)->first();
         if (!$edit) {
             return ResponseFormatter::error(
                 null,
@@ -426,7 +444,7 @@ class GsicController extends Controller
 
         $gsic_user = GsicUser::where('user_id',Auth::id())->first();
         $user_team_id = $gsic_user->team_id;
-        $team_name = GsicTeam::find($user_team_id)->team_name;
+        $team_name = GsicTeam::where('id',$user_team_id)->first()->team_name;
 
         $url = $request->file('url');
         $url_path = $url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$url->getClientOriginalName()));

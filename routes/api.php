@@ -53,19 +53,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('edit-ceremony-user', [CeremonyController::class,'userEdit']);
 
     Route::get('announcement-by-user',[AnnouncementController::class, 'getByUser']);
-
+    
     Route::post('register-bcc-user', [BccController::class, 'register']);
     Route::post('edit-bcc-user', [BccController::class, 'editFromUser']);
     Route::post('bcc-user-submission', [BccController::class, 'submitUser']);
     Route::post('create-bcc-team', [BccController::class, 'createTeam']);
+    Route::get('bcc-myteam', [BccController::class, 'myTeam']);
     Route::post('bcc-team-submission', [BccController::class, 'submitTeam']);
     Route::post('edit-bcc-team', [BccController::class, 'editFromTeam']);
     Route::post('edit-bcc-team-submission', [BccController::class, 'editSubmitTeam']);
 
+    Route::get('gsic-myteam', [GsicController::class,'myTeam']);
     Route::post('register-gsic', [GsicController::class,'register']);
     Route::post('gsic-submission', [GsicController::class,'submitTeam']);
     Route::post('edit-gsic-submission', [GsicController::class,'editSubmitTeam']);
-
+    
     Route::post('register-exhibition', [ExhibitionController::class,'register']);
     Route::post('edit-exhibition-user', [ExhibitionController::class,'editFromUser']);
 });

@@ -67,6 +67,24 @@ class BccController extends Controller
         );
     }
 
+    function myTeam(Request $request){
+        $id = Auth::id();
+        $team_id = BccUser::where('user_id',$id)->first()->team_id;
+        $bcc_team = BccTeam::with('users')->where('id',$team_id)->first();
+        if ($bcc_team) {
+            return ResponseFormatter::success(
+                $bcc_team,
+                'Data peserta berhasil diambil' 
+            );
+        }else{
+            return ResponseFormatter::error(
+                null,
+                'Data peserta tidak ada',
+                404
+            );
+        }
+    }
+
     function register(Request $request) {
         try {
             $request->validate([
