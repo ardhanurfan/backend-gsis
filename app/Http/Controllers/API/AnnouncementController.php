@@ -8,6 +8,7 @@ use App\Models\Announcement;
 use App\Models\BccUser;
 use App\Models\Ceremony;
 use App\Models\Exhibition;
+use App\Models\GsicTeam;
 use App\Models\GsicUser;
 use App\Models\User;
 use App\Notifications\AnnouncementEmail;
@@ -119,23 +120,19 @@ class AnnouncementController extends Controller
             // Kirim ke email
             if ($request->status == "SENT") {
                 if ($request->type == "Ceremony") {
-                    $ceremony_id = Ceremony::select('user_id');
-                    $users = User::where('id', $ceremony_id)->exists();
+                    $users = Ceremony::join('users', 'ceremonies.user_id', '=', 'users.id');
 
                     Notification::send($users, new AnnouncementEmail($request->description));
                 } else if ($request->type == "Exhibition") {
-                    $exhibit_id = Exhibition::select('user_id');
-                    $users = User::where('id', $exhibit_id)->exists();
+                    $users = Exhibition::join('users', 'exhibitions.user_id', '=', 'users.id')->where('status', 'ACTIVE');
 
                     Notification::send($users, new AnnouncementEmail($request->description));
                 } else if ($request->type == "BCC") {
-                    $bcc_id = BccUser::select('user_id');
-                    $users = User::where('id', $bcc_id)->exists();
+                    $users = BccUser::join('users', 'bcc_users.user_id', '=', 'users.id')->where('status', 'ACTIVE');
 
                     Notification::send($users, new AnnouncementEmail($request->description));
                 } else if ($request->type == "GSIC") {
-                    $gsic_id = GsicUser::select('user_id');
-                    $users = User::where('id', $gsic_id)->exists();
+                    $users = GsicTeam::join('gsic_users', 'gsic_teams.id', '=', 'gsic_users.user_id')->join('users', 'gsic_users.user_id', '=', 'users.id')->where('status', 'ACTIVE');
 
                     Notification::send($users, new AnnouncementEmail($request->description));
                 } else {
