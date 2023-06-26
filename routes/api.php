@@ -29,8 +29,11 @@ Route::post('add-announcement',[AnnouncementController::class, 'add']);
 Route::post('edit-announcement',[AnnouncementController::class, 'edit']);
 Route::post('delete-announcement',[AnnouncementController::class, 'delete']);
 
-
 Route::get('bcc-user', [BccController::class, 'all']);
+Route::post('edit-bcc-user-from-admin', [BccController::class, 'editFromAdmin']);
+Route::post('edit-bcc-team-from-admin', [BccController::class, 'editFromAdminTeam']);
+
+Route::post('edit-ceremony-admin', [CeremonyController::class,'adminEdit']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [UserController::class, 'get']);
@@ -39,12 +42,14 @@ Route::middleware('auth:sanctum')->group(function () {
     
     Route::post('register-ceremony', [CeremonyController::class,'register']);
     Route::post('edit-ceremony-user', [CeremonyController::class,'userEdit']);
-    Route::post('edit-ceremony-admin', [CeremonyController::class,'adminEdit']);
+
     Route::get('announcement-by-user',[AnnouncementController::class, 'getByUser']);
+
     Route::post('register-bcc-user', [BccController::class, 'register']);
     Route::post('edit-bcc-user', [BccController::class, 'editFromUser']);
-    Route::post('edit-bcc-user-from-admin', [BccController::class, 'editFromAdmin']);
     Route::post('bcc-user-submission', [BccController::class, 'submitUser']);
-    Route::post('bcc-team-submission', [BccController::class, 'submitTeam']);
     Route::post('create-bcc-team', [BccController::class, 'createTeam']);
+    Route::post('bcc-team-submission', [BccController::class, 'submitTeam']);
+    Route::post('edit-bcc-team', [BccController::class, 'editFromTeam']);
+    Route::post('edit-bcc-team-submission', [BccController::class, 'editSubmitTeam']);
 });

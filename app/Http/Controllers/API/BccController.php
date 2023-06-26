@@ -9,6 +9,9 @@ use App\Models\BccSubmission;
 use App\Models\BccTeam;
 use Illuminate\Support\Facades\Auth;
 use App\Models\BccUser;
+use App\Models\User;
+use Carbon\Exceptions\Exception as ExceptionsException;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -75,15 +78,6 @@ class BccController extends Controller
             'payment_url'=>$payment_path,
         ]);
 
-        $get = config('app.url').Storage::url($ktm_path);
-        $bcc_user->ktm_url = $get;
-        $get = config('app.url').Storage::url($ss_follow_path);
-        $bcc_user->ss_follow_url = $get;
-        $get = config('app.url').Storage::url($ss_poster_path);
-        $bcc_user->ss_poster_url = $get;
-        $get = config('app.url').Storage::url($payment_path);
-        $bcc_user->payment_url = $get;
-
         return ResponseFormatter::success(
                 $bcc_user,
                 'Create Bcc User successfully'
@@ -115,50 +109,47 @@ class BccController extends Controller
 
         $ktm_url = $request->file('ktm_url');
         if($ktm_url){
-            unlink(public_path($edit->ktm_url));
+            unlink(public_path(str_replace(config('app.url'),'',$edit->ktm_url)));
             $ktm_path = $ktm_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
             $edit->update([
                 'ktm_url'=>$ktm_path
             ]);
-
-            $get = config('app.url').Storage::url($ktm_path);
-            $edit->ktm_url = $get;
         }
 
         $ss_follow_url = $request->file('ss_follow_url');
         if($ss_follow_url){
-            unlink(public_path($edit->ss_follow_url));
+            unlink(public_path(str_replace(config('app.url'),'',$edit->ss_follow_url)));
             $ss_follow_path = $ss_follow_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ss_follow_url->getClientOriginalName()));
             $edit->update([
                 'ss_follow_url'=>$ss_follow_path
             ]);
-
-            $get = config('app.url').Storage::url($ss_follow_path);
-            $edit->ss_follow_url = $get;
         }
 
         $ss_poster_url = $request->file('ss_poster_url');
         if($ss_poster_url){
-            unlink(public_path($edit->ss_poster_url));
+            unlink(public_path(str_replace(config('app.url'),'',$edit->ss_poster_url)));
             $ss_poster_path = $ss_poster_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
             $edit->update([
                 'ss_poster_url'=>$ss_poster_path
             ]);
-
-            $get = config('app.url').Storage::url($ss_poster_path);
-            $edit->ss_poster_url = $get;
         }
         
         $payment_url = $request->file('payment_url');
         if($payment_url){
-            unlink(public_path($edit->payment_url));
+            unlink(public_path(str_replace(config('app.url'),'',$edit->payment_url)));
             $payment_path = $payment_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$payment_url->getClientOriginalName()));
             $edit->update([
                 'payment_url'=>$payment_path
             ]);
+        }
 
-            $get = config('app.url').Storage::url($payment_path);
-            $edit->payment_url = $get;
+        $papper_url = $request->file('papper_url');
+        if($papper_url){
+            unlink(public_path(str_replace(config('app.url'),'',$edit->papper_url)));
+            $papper_path = $papper_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$papper_url->getClientOriginalName()));
+            $edit->update([
+                'papper_url'=>$papper_path
+            ]);
         }
         
         return ResponseFormatter::success(
@@ -166,10 +157,10 @@ class BccController extends Controller
             'Edit Bcc User success'
         );
 
-        } catch (ValidationException $error) {
+        } catch (Exception $error) {
             return ResponseFormatter::error([
                 'message' => 'Something when wrong',
-                'error' => array_values($error->errors())[0][0],    
+                'error' => $error    
             ], 
                 'Edit Bcc User failed', 
                 500,
@@ -181,11 +172,11 @@ class BccController extends Controller
         try {
             $request->validate([
             'user_id'=>'required',
-            'status'=>'required|in:ACTIVE,INACTIVE',
-            'approve_ktm'=>'required|in:WAITING,REJECTED,ACCEPTED',
-            'approve_follow'=>'required|in:WAITING,REJECTED,ACCEPTED',
-            'approve_poster'=>'required|in:WAITING,REJECTED,ACCEPTED',
-            'approve_payment'=>'required|in:WAITING,REJECTED,ACCEPTED',
+            'status'=>'in:ACTIVE,INACTIVE',
+            'approve_ktm'=>'in:WAITING,REJECTED,ACCEPTED',
+            'approve_follow'=>'in:WAITING,REJECTED,ACCEPTED',
+            'approve_poster'=>'in:WAITING,REJECTED,ACCEPTED',
+            'approve_payment'=>'in:WAITING,REJECTED,ACCEPTED',
         ]);
         $edit = BccUser::with('user')->where('user_id',$request->user_id)->first();
 
@@ -197,13 +188,31 @@ class BccController extends Controller
             );
         }
 
-        $edit->update([
-            'status'=>$request->status,
-            'approve_ktm'=>$request->approve_ktm,
-            'approve_follow'=>$request->approve_follow,
-            'approve_poster'=>$request->approve_poster,
-            'approve_payment'=>$request->approve_payment,
-        ]);
+        if ($request->status) {
+            $edit->update([
+                'status'=>$request->status,
+            ]);
+        }
+        if ($request->approve_ktm) {
+            $edit->update([
+                'approve_ktm'=>$request->approve_ktm,
+            ]);
+        }
+        if ($request->approve_follow) {
+            $edit->update([
+                'approve_follow'=>$request->approve_follow,
+            ]);
+        }
+        if ($request->approve_poster) {
+            $edit->update([
+                'approve_poster'=>$request->approve_poster,
+            ]);
+        }
+        if ($request->approve_payment) {
+            $edit->update([
+                'approve_payment'=>$request->approve_payment,
+            ]);
+        }
 
         return ResponseFormatter::success(
             $edit,
@@ -244,46 +253,6 @@ class BccController extends Controller
         $submit->update([
             'papper_url'=>$papper_path,
         ]);
-        $get = config('app.url').Storage::url($papper_path);
-        $submit->papper_url = $get;
-        return ResponseFormatter::success(
-            $submit,
-            'Submit papper success'
-        );
-        } catch (ValidationException $error) {
-            return ResponseFormatter::error([
-                'message' => 'Something when wrong',
-                'error' => array_values($error->errors())[0][0],    
-            ], 
-                'Submit papper failed', 
-                500,
-            );
-        }
-    }
-
-    function submitTeam(Request $request) {
-        try {
-            $request->validate([
-                'url'=>'required',
-                'round'=>'required',
-        ]);
-        $bcc_user = BccUser::with('user')->where('user_id',Auth::user()->id)->first();
-        $user_team_id = $bcc_user->team_id;
-
-        $team_name = BccTeam::with('users')->where('id', $user_team_id)->find('team_name');
-
-        
-        $url = $request->file('url');
-        $url_path = $url->storeAs('public/bcc/'.str_replace(' ','_',$team_name), str_replace(' ','_',$url->getClientOriginalName()));
-    
-        $submit =  BccSubmission::create([
-            'team_id' => $user_team_id,
-            'url'=>$url_path,
-            'round'=>$request->round,
-        ]);
-
-        $get = config('app.url').Storage::url($url_path);
-        $submit->url = $get;
 
         return ResponseFormatter::success(
             $submit,
@@ -305,13 +274,15 @@ class BccController extends Controller
             $request->validate([
                 'team_name'=>['required', 'string', 'unique:bcc_teams,team_name'],
                 'payment_url'=>'required',
+                'email_user_1'=>'required|exists:users,email',
+                'email_user_2'=>'required|exists:users,email'
         ]);
 
 
         $id = Auth::user()->id;
         
         $payment_url = $request->file('payment_url');
-        $payment_url_path = $payment_url->storeAs('public/bcc/'.str_replace(' ','_',$request->team_name), str_replace(' ','_',$payment_url->getClientOriginalName()));
+        $payment_url_path = $payment_url->storeAs('public/bcc/team/'.str_replace(' ','_',$request->team_name), str_replace(' ','_',$payment_url->getClientOriginalName()));
     
         $create =  BccTeam::create([
             'team_name' => $request->team_name,
@@ -319,12 +290,23 @@ class BccController extends Controller
             'payment_url'=>$payment_url_path,
         ]);
 
-        $user = BccUser::with('user')->where('user_id',Auth::user()->id)->first();
+        $user = BccUser::where('user_id',Auth::user()->id)->first();
         $user->update([
             'team_id'=>$create->id
         ]);
-        $get = config('app.url').Storage::url($payment_url_path);
-        $create->payment_url = $get;
+
+        $id = User::where('email', $request->email_user_1)->first()->id;
+        $user = BccUser::where('user_id', $id)->first();
+        $user->update([
+            'team_id'=>$create->id,
+        ]);
+
+        $id = User::where('email', $request->email_user_2)->first()->id;
+        $user = BccUser::where('user_id', $id)->first();
+        $user->update([
+            'team_id'=>$create->id,
+        ]);
+
         return ResponseFormatter::success(
             $create,
             'Create Team success'
@@ -335,6 +317,159 @@ class BccController extends Controller
                 'error' => array_values($error->errors())[0][0],    
             ], 
                 'Create Team failed', 
+                500,
+            );
+        }
+    }
+
+    function submitTeam(Request $request) {
+        try {
+            $request->validate([
+                'url'=>'required',
+                'round'=>'required',
+        ]);
+        $bcc_user = BccUser::with('user')->where('user_id',Auth::id())->first();
+        $user_team_id = $bcc_user->team_id;
+
+        $team_name = BccTeam::with('users')->where('id', $user_team_id)->team_name;
+
+        
+        $url = $request->file('url');
+        $url_path = $url->storeAs('public/bcc/team/'.str_replace(' ','_',$team_name), str_replace(' ','_',$url->getClientOriginalName()));
+    
+        $submit =  BccSubmission::create([
+            'team_id' => $user_team_id,
+            'url'=>$url_path,
+            'round'=>$request->round,
+        ]);
+
+        return ResponseFormatter::success(
+            $submit,
+            'Submit papper success'
+        );
+        } catch (ValidationException $error) {
+            return ResponseFormatter::error([
+                'message' => 'Something when wrong',
+                'error' => array_values($error->errors())[0][0],    
+            ], 
+                'Submit papper failed', 
+                500,
+            );
+        }
+    }
+
+    function editFromAdminTeam(Request $request) {
+        try {
+            $request->validate([
+            'team_id'=>'required',
+            'status'=>'in:ACTIVE,INACTIVE',
+            'approve_payment'=>'in:WAITING,REJECTED,ACCEPTED',
+        ]);
+        $edit = BccTeam::with('users')->where('id',$request->team_id)->first();
+
+        if (!$edit) {
+            return ResponseFormatter::error(
+                null,
+                'Data not found',
+                404
+            );
+        }
+
+        if ($request->status) {
+            $edit->update([
+                'status'=>$request->status,
+            ]);
+        }
+        if ($request->approve_payment) {
+            $edit->update([
+                'approve_payment'=>$request->approve_payment,
+            ]);
+        }
+
+        return ResponseFormatter::success(
+            $edit,
+            'Edit Bcc Team success'
+        );
+
+        } catch (ValidationException $error) {
+            return ResponseFormatter::error([
+                'message' => 'Something when wrong',
+                'error' => array_values($error->errors())[0][0],    
+            ], 
+                'Edit Bcc Team failed', 
+                500,
+            );
+        }
+    }
+
+    function editFromTeam(Request $request) {
+        try {
+            $bcc_user = BccUser::where('user_id',Auth::user()->id)->first();
+            if(!$bcc_user) {
+                return ResponseFormatter::error(
+                    null,
+                    'Data not found',
+                    404
+                );
+            }
+
+            $user_team_id = $bcc_user->team_id;
+            $team = BccTeam::where('id', $user_team_id)->first();
+            
+            $payment_url = $request->file('payment_url');
+            if($payment_url){
+                unlink(public_path(str_replace(config('app.url'),'',$team->payment_url)));
+                $payment_path = $payment_url->storeAs('public/bcc/team/'.str_replace(' ','_',$team->team_name), str_replace(' ','_',$payment_url->getClientOriginalName()));
+                $team->update([
+                    'payment_url'=>$payment_path
+                ]);
+            }
+            
+            return ResponseFormatter::success(
+                $team,
+                'Edit Bcc Team success'
+            );
+
+        } catch (Exception $error) {
+            return ResponseFormatter::error([
+                'message' => 'Something when wrong',
+                'error' => $error    
+            ], 
+                'Edit Bcc Team failed', 
+                500,
+            );
+        }
+    }
+
+    function editSubmitTeam(Request $request) {
+        try {
+            $request->validate([
+                'url'=>'required',
+                'round'=>'required',
+        ]);
+        $bcc_user = BccUser::with('user')->where('user_id',Auth::id())->first();
+        $user_team_id = $bcc_user->team_id;
+        $team_name = BccTeam::with('users')->find($user_team_id)->team_name;
+
+        $submission = BccSubmission::where('team_id', $user_team_id)->where('round', $request->round)->first();
+
+        $url = $request->file('url');
+        unlink(public_path(str_replace(config('app.url'),'',$submission->url)));
+        $papper_path = $url->storeAs('public/bcc/team/'.str_replace(' ','_',$team_name), str_replace(' ','_',$url->getClientOriginalName()));
+        $submission->update([
+            'url'=>$papper_path
+        ]);
+
+        return ResponseFormatter::success(
+            $submission,
+            'Edit papper success'
+        );
+        } catch (ValidationException $error) {
+            return ResponseFormatter::error([
+                'message' => 'Something when wrong',
+                'error' => array_values($error->errors())[0][0],    
+            ], 
+                'Edit papper failed', 
                 500,
             );
         }

@@ -10,7 +10,6 @@ use Illuminate\Validation\ValidationException;
 use App\Helpers\ResponseFormatter;
 use App\Models\GsicSubmission;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class GsicController extends Controller
 {
@@ -119,9 +118,6 @@ class GsicController extends Controller
             'ss_follow_url' => $ss_follow_path,
             'ss_poster_url' => $ss_poster_path,
         ]);
-
-        $get = config('app.url').Storage::url($payment_url);
-        $gsic_team->payment_url = $get;
 
         return ResponseFormatter::success(
             $gsic_team,
@@ -383,9 +379,6 @@ class GsicController extends Controller
             'url'=>$url_path,
             'round'=>$request->round,
         ]);
-
-        $get = config('app.url').Storage::url($url_path);
-        $submit->url = $get;
 
         return ResponseFormatter::success(
             $submit,

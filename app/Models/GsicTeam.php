@@ -33,8 +33,8 @@ class GsicTeam extends Model
         return $this->hasMany(GsicSubmission::class, 'team_id', 'id');
     }
 
-    public function getUrlAttribute($payment_url)
+    public function getPaymentUrlAttribute($url)
     {
-        return config('app.url').Storage::url($payment_url);
+        return config('app.url').Storage::url($url);
     }
 }

@@ -34,6 +34,7 @@ class CeremonyController extends Controller
             }
         }
         $cer_user = Ceremony::with('user');
+
         return ResponseFormatter::success(
             $cer_user->get(),
             'Data peserta berhasil diambil' 
@@ -54,9 +55,6 @@ class CeremonyController extends Controller
                 'user_id' => $id,
                 'ss_poster_url' => $posterPath
             ]);
-
-            $get = config('app.url').Storage::url($posterPath);
-            $cer_user->ss_poster_url = $get;
 
             return ResponseFormatter::success(
                 $cer_user,
@@ -88,7 +86,7 @@ class CeremonyController extends Controller
             $posterFile = $request->file('ss_poster_url');
             if ($posterFile) {
                 // Untuk hapus di storage
-                unlink(public_path($edit->ss_poster_url));
+                unlink(public_path(str_replace(config('app.url'),'',$edit->ss_poster_url)));
 
                 // Upload file lagi
                 $posterPath = $posterFile->storeAs('public/ceremony/'.str_replace(' ','_',Auth::user()->name), str_replace(' ','_',$posterFile->getClientOriginalName()));
@@ -97,10 +95,6 @@ class CeremonyController extends Controller
                 $edit->update([
                     'ss_poster_url'=>$posterPath
                 ]);
-    
-                // Biar di get bentuknya URL
-                $get = config('app.url').Storage::url($posterPath);
-                $edit->ss_poster_url = $get;
             }
 
             return ResponseFormatter::success(

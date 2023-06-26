@@ -12,6 +12,7 @@ class Ceremony extends Model
 
     public $table = 'ceremonies';
     protected $primaryKey = 'user_id';
+    public $incrementing = false;
 
     /**
      * The attributes that are mass assignable.
@@ -28,8 +29,8 @@ class Ceremony extends Model
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    public function getUrlAttributePoster($ss_poster_url)
+    public function getSsPosterUrlAttribute($url)
     {
-        return config('app.url').Storage::url($ss_poster_url);
+        return config('app.url').Storage::url($url);
     }
 }

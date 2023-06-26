@@ -13,6 +13,7 @@ class GsicUser extends Model
 
     public $table = 'gsic_users';
     protected $primaryKey = 'user_id';
+    public $incrementing = false;
 
     /**
      * The attributes that are mass assignable.
@@ -32,18 +33,18 @@ class GsicUser extends Model
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    public function getUrlAttributeKtm($ktm_url)
+    public function getKtmUrlAttribute($url)
     {
-        return config('app.url').Storage::url($ktm_url);
+        return config('app.url').Storage::url($url);
     }
 
-    public function getUrlAttributeFollow($ss_follow_url)
+    public function getSsFollowUrlAttribute($url)
     {
-        return config('app.url').Storage::url($ss_follow_url);
+        return config('app.url').Storage::url($url);
     }
 
-    public function getUrlAttributePoster($ss_poster_url)
+    public function getSsPosterUrlAttribute($url)
     {
-        return config('app.url').Storage::url($ss_poster_url);
+        return config('app.url').Storage::url($url);
     }
 }

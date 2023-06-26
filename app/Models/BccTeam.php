@@ -33,8 +33,8 @@ class BccTeam extends Model
         return $this->hasMany(BccSubmission::class, 'team_id', 'id');
     }
 
-    public function getUrlAttribute($payment_url)
+    public function getPaymentUrlAttribute($url)
     {
-        return config('app.url').Storage::url($payment_url);
+        return config('app.url').Storage::url($url);
     }
 }
