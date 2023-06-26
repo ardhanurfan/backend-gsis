@@ -6,6 +6,7 @@ use App\Http\Controllers\API\BccController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\CeremonyController;
 use App\Http\Controllers\API\GsicController;
+use App\Http\Controllers\API\ExhibitionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,6 +42,8 @@ Route::post('edit-gsic-admin', [GsicController::class,'editFromAdmin']);
 
 Route::post('edit-ceremony-admin', [CeremonyController::class,'adminEdit']);
 
+Route::get('exhibition-user',[ExhibitionController::class, 'all']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [UserController::class, 'get']);
     Route::post('logout', [UserController::class, 'logout']);
@@ -62,4 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('register-gsic', [GsicController::class,'register']);
     Route::post('gsic-submission', [GsicController::class,'submitTeam']);
     Route::post('edit-gsic-submission', [GsicController::class,'editSubmitTeam']);
+
+    Route::post('register-exhibition', [ExhibitionController::class,'register']);
+    Route::post('edit-exhibition-user', [ExhibitionController::class,'editFromUser']);
 });
