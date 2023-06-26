@@ -43,7 +43,7 @@ class ExhibitionController extends Controller
                 'description' => ['required', 'string'],                
                 'year' => ['required', 'string'],                
                 'width' => ['required', 'string'],
-                'height' => ['required', 'string'],                
+                'height' => ['required', 'string'],               
             ]);
 
         
@@ -76,7 +76,6 @@ class ExhibitionController extends Controller
 
     function editFromUser(Request $request){
         try{
-
             $request->validate([              
                 'category' => ['required', 'string'],                
                 'description' => ['required', 'string'],                
@@ -87,7 +86,7 @@ class ExhibitionController extends Controller
 
             $id = Auth::id();
 
-            $edit = Exhibition::with('user')->where('user_id',$id)->first();
+            $edit = Exhibition::where('user_id',$id)->first();
 
             if (!$edit) {
                 return ResponseFormatter::error(
@@ -109,7 +108,7 @@ class ExhibitionController extends Controller
 
             return ResponseFormatter::success(
                 $edit,
-                'Edit Bcc User success'
+                'Edit Exhibition User success'
             );
 
         }catch(ValidationException $error){
@@ -122,5 +121,41 @@ class ExhibitionController extends Controller
             );
         }
     }
-    //
+    
+    function editFromAdmin(Request $request){
+        try{
+            $request->validate([              
+                'exhibition_id' => ['required'],
+                'status' => 'required|in:ACTIVE,INACTIVE'                           
+            ]);
+
+            $edit = Exhibition::where('user_id',$request->exhibition_id)->first();
+
+            if (!$edit) {
+                return ResponseFormatter::error(
+                    null,
+                    'Data not found',
+                    404
+                );
+            }
+
+            $edit->update([
+                'status' => $request->status,
+            ]);
+
+            return ResponseFormatter::success(
+                $edit,
+                'Edit Exhibition User success'
+            );
+
+        }catch(ValidationException $error){
+            return ResponseFormatter::error([
+                'message' => 'Something when wrong',
+                'error' => array_values($error->errors())[0][0],    
+            ], 
+                'Edit Exhibition User failed', 
+                500,
+            );
+        }
+    }
 }

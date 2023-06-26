@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('exhibitions', function (Blueprint $table) {
             $table->foreignId('user_id')->primary()->constrained('users')->onDelete('cascade')->onUpdate('cascade');
-            $table->string('status');
+            $table->string('status')->default('ACTIVE');
             $table->string('category');
             $table->text('description');
             $table->string('year');

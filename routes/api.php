@@ -42,7 +42,8 @@ Route::post('edit-gsic-admin', [GsicController::class,'editFromAdmin']);
 
 Route::post('edit-ceremony-admin', [CeremonyController::class,'adminEdit']);
 
-Route::get('exhibition-user',[ExhibitionController::class, 'all']);
+Route::get('exhibition',[ExhibitionController::class, 'all']);
+Route::post('edit-exhibition-admin', [ExhibitionController::class,'editFromAdmin']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [UserController::class, 'get']);
