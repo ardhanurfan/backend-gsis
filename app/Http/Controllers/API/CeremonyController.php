@@ -115,10 +115,11 @@ class CeremonyController extends Controller
     function adminEdit(Request $request){
         try {
             $request->validate([
+            'id' =>'required',
             'approve_poster'=>'required |in:REJECTED,WAITING,ACCEPTED'
             ]);
 
-            $edit = Ceremony::with('user')->where('user_id',Auth::id())->first();
+            $edit = Ceremony::with('user')->where('user_id',$request->id)->first();
 
             if (!$edit) {
                 return ResponseFormatter::error(

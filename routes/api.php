@@ -22,7 +22,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('register', [UserController::class, 'register']);
 Route::post('login', [UserController::class, 'login']);
-Route::get('ceremony',[CeremonyController::class, 'all']);
 
 Route::get('universities', [UniversityController::class, 'all']);
 
@@ -40,6 +39,7 @@ Route::get('gsic', [GsicController::class, 'all']);
 Route::post('edit-gsic-user', [GsicController::class,'editFromUser']);
 Route::post('edit-gsic-admin', [GsicController::class,'editFromAdmin']);
 
+Route::get('ceremony',[CeremonyController::class, 'all']);
 Route::post('edit-ceremony-admin', [CeremonyController::class,'adminEdit']);
 
 Route::get('exhibition',[ExhibitionController::class, 'all']);
