@@ -93,7 +93,8 @@ class CeremonyController extends Controller
     
                 // Update DB
                 $edit->update([
-                    'ss_poster_url'=>$posterPath
+                    'ss_poster_url'=>$posterPath,
+                    'approve_poster'=>'WAITING'
                 ]);
             }
 
