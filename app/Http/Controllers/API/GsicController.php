@@ -185,6 +185,7 @@ class GsicController extends Controller
             $payment_path = $payment_url->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$payment_url->getClientOriginalName()));
             $edit->update([
                 'payment_url' => $payment_path,
+                'approve_payment'=>'WAITING'
             ]);
         }
 
@@ -203,6 +204,7 @@ class GsicController extends Controller
             $ktm_path_leader = $ktm_url_leader->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url_leader->getClientOriginalName()));
             $edit->update([
                 'ktm_url' => $ktm_path_leader,
+                'approve_ktm'=>'WAITING'
             ]);
         }
 
@@ -212,6 +214,7 @@ class GsicController extends Controller
             $ss_follow_path_leader = $ss_follow_url_leader->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_follow_url_leader->getClientOriginalName()));
             $edit->update([
                 'ss_follow_url' => $ss_follow_path_leader,
+                'approve_follow'=>'WAITING'
             ]);
         }
         
@@ -221,6 +224,7 @@ class GsicController extends Controller
             $ss_poster_path_leader = $ss_poster_url_leader->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url_leader->getClientOriginalName()));
             $edit->update([
                 'ss_poster_url' => $ss_poster_path_leader,
+                'approve_poster'=>'WAITING'
             ]);
         }
 
@@ -240,6 +244,7 @@ class GsicController extends Controller
             $ktm_path_user_1 = $ktm_url_user_1->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url_user_1->getClientOriginalName()));
             $edit->update([
                 'ktm_url' => $ktm_path_user_1,
+                'approve_ktm'=>'WAITING'
             ]);
         }
 
@@ -249,6 +254,7 @@ class GsicController extends Controller
             $ss_follow_path_user_1 = $ss_follow_url_user_1->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_follow_url_user_1->getClientOriginalName()));
             $edit->update([
                 'ss_follow_url' => $ss_follow_path_user_1,
+                'approve_follow'=>'WAITING'
             ]);
         }
         
@@ -258,6 +264,7 @@ class GsicController extends Controller
             $ss_poster_path_user_1 = $ss_poster_url_user_1->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url_user_1->getClientOriginalName()));
             $edit->update([
                 'ss_poster_url' => $ss_poster_path_user_1,
+                'approve_poster'=>'WAITING'
             ]);
         }
 
@@ -276,6 +283,7 @@ class GsicController extends Controller
             $ktm_path_user_2 = $ktm_url_user_2->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ktm_url_user_2->getClientOriginalName()));
             $edit->update([
                 'ktm_url' => $ktm_path_user_2,
+                'approve_ktm'=>'WAITING'
             ]);
         }
 
@@ -285,6 +293,7 @@ class GsicController extends Controller
             $ss_follow_path_user_2 = $ss_follow_url_user_2->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_follow_url_user_2->getClientOriginalName()));
             $edit->update([
                 'ss_follow_url' => $ss_follow_path_user_2,
+                'approve_follow'=>'WAITING'
             ]);
         }
         
@@ -294,6 +303,7 @@ class GsicController extends Controller
             $ss_poster_path_user_2 = $ss_poster_url_user_2->storeAs('public/gsic/'.str_replace(' ','_',$team_name), str_replace(' ','_',$ss_poster_url_user_2->getClientOriginalName()));
             $edit->update([
                 'ss_poster_url' => $ss_poster_path_user_2,
+                'approve_poster'=>'WAITING'
             ]);
         }
 
