@@ -4,8 +4,10 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\PasswordResetToken;
 use App\Models\User;
 use App\Notifications\RegistrationEmail;
+use App\Notifications\ResetPasswordEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -208,6 +210,116 @@ class UserController extends Controller
                 'error' => array_values($error->errors())[0][0],    
             ], 
                 'Edit Profile Failed', 
+                500,
+            );
+        }
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        try {
+            // Validate and Check
+            $request->validate([
+                'email' => 'email|required',
+            ]);
+
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user || !$user->email) {
+                return ResponseFormatter::error([
+                    'error' => 'Incorrect email address provided',    
+                ], 
+                    'No Record Found', 
+                    404,
+                );
+            }
+
+            // Generate Token
+            $resetToken = str_pad(random_int(1,9999), 16, '0', STR_PAD_LEFT);
+
+            if(!$userPassReset = PasswordResetToken::where('email', $request->email)->first()) {
+                PasswordResetToken::create([
+                    'email' => $user->email,
+                    'token' => $resetToken,
+                ]);
+            } else {
+                $userPassReset->update([
+                    'email' => $user->email,
+                    'token' => $resetToken,
+                ]);
+            }
+
+            $user->notify(new ResetPasswordEmail($resetToken));
+
+            return ResponseFormatter::success(["token" => $resetToken], 'Forgot success, check your email');
+        } catch (ValidationException $error) {
+            return ResponseFormatter::error([
+                'message' => 'Something when wrong',
+                'error' => array_values($error->errors())[0][0],    
+            ], 
+                'Forgot Password Failed', 
+                500,
+            );
+        }
+    }
+
+    public function resetPassword(Request $request)
+    {
+        try {
+            // Validate and Check
+            $request->validate([
+                'password' => ['required', 'string', Password::defaults()->uncompromised()],
+                'confirmPassword' => ['required', 'string'],
+                'token' => ['required', 'integer'],
+            ]);
+
+            if ($request->password != $request->confirmPassword) {
+                return ResponseFormatter::error([
+                    'message' => 'Something when wrong',
+                    'error' => "Password not match",    
+                ], 
+                    'Reset Password Failed', 
+                    500,
+                );
+            }
+
+            $email = PasswordResetToken::where('token', $request->token)->first()->email;
+            $user = User::where('email', $email)->first();
+
+            if (!$user || !$user->email) {
+                return ResponseFormatter::error([
+                    'error' => 'Incorrect email address provided',    
+                ], 
+                    'No Record Found', 
+                    404,
+                );
+            }
+
+            $resetRequest = PasswordResetToken::where('email', $user->email)->first();
+
+            if (!$resetRequest || ($resetRequest->token != $request->token)) {
+                return ResponseFormatter::error([
+                    'error' => 'Token mismatch',    
+                ], 
+                    'Check token again', 
+                    404,
+                );
+            }
+
+            $user->update([
+                'password' => Hash::make($request->password)
+            ]);
+
+            // delete all previous token
+            $user->tokens()->delete();
+
+            return ResponseFormatter::success(null, 'Password Changed');
+        } catch (ValidationException $error) {
+            return ResponseFormatter::error([
+                'message' => 'Something when wrong',
+                'error' => array_values($error->errors())[0][0],    
+            ], 
+                'Reset Password Failed', 
                 500,
             );
         }

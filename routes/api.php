@@ -45,6 +45,9 @@ Route::post('edit-ceremony-admin', [CeremonyController::class,'adminEdit']);
 Route::get('exhibition',[ExhibitionController::class, 'all']);
 Route::post('edit-exhibition-admin', [ExhibitionController::class,'editFromAdmin']);
 
+Route::post('forgot-password', [UserController::class, 'forgotPassword']);
+Route::post('reset-password', [UserController::class, 'resetPassword']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [UserController::class, 'get']);
     Route::post('logout', [UserController::class, 'logout']);
