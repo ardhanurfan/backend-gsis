@@ -93,7 +93,8 @@ class CeremonyController extends Controller
     
                 // Update DB
                 $edit->update([
-                    'ss_poster_url'=>$posterPath
+                    'ss_poster_url'=>$posterPath,
+                    'approve_poster'=>'WAITING'
                 ]);
             }
 
@@ -115,10 +116,11 @@ class CeremonyController extends Controller
     function adminEdit(Request $request){
         try {
             $request->validate([
+            'id' =>'required',
             'approve_poster'=>'required |in:REJECTED,WAITING,ACCEPTED'
             ]);
 
-            $edit = Ceremony::with('user')->where('user_id',Auth::id())->first();
+            $edit = Ceremony::with('user')->where('user_id',$request->id)->first();
 
             if (!$edit) {
                 return ResponseFormatter::error(

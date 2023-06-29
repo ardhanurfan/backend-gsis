@@ -32,6 +32,10 @@ class Exhibition extends Model
         'youtube',
     ];
 
+    public function user() {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
     public function documentation() {
         return $this->hasMany(DocumentationExhibition::class, 'user_id', 'user_id');
     }

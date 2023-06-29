@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Exhibition;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseFormatter;
+use App\Models\DocumentationExhibition;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
@@ -15,7 +16,7 @@ class ExhibitionController extends Controller
         $user_id = $request->input('user_id');
         
         if ($user_id){
-            $exhibition_user = Exhibition::with('user')->where('user_id',$user_id)->first();
+            $exhibition_user = Exhibition::with(['user','documentation'])->where('user_id',$user_id)->first();
             if ($exhibition_user) {
                 return ResponseFormatter::success(
                     $exhibition_user,
@@ -29,7 +30,7 @@ class ExhibitionController extends Controller
                 );
             }
         }
-        $exhibition_user = Exhibition::with('user');
+        $exhibition_user = Exhibition::with(['user','documentation']);
         return ResponseFormatter::success(
             $exhibition_user->get(),
             'Data peserta berhasil diambil' 
@@ -43,9 +44,12 @@ class ExhibitionController extends Controller
                 'description' => ['required', 'string'],                
                 'year' => ['required', 'string'],                
                 'width' => ['required', 'string'],
-                'height' => ['required', 'string'],               
+                'height' => ['required', 'string'],
+                'url' => 'required',               
             ]);
 
+        $photoFile = $request->file('url');
+        $photoPath = $photoFile->storeAs('public/exhibition/'.str_replace(' ','_',Auth::user()->name), str_replace(' ','_',$photoFile->getClientOriginalName()));
         
         $id = Auth::id();
 
@@ -59,8 +63,12 @@ class ExhibitionController extends Controller
             'twitter' => $request->twitter,
             'youtube' => $request->youtube,
         ]);
+        $exhibition_documentation = DocumentationExhibition::create([
+            'user_id' => $id,
+            'url' => $photoPath,
+        ]);
         return ResponseFormatter::success(
-                $exhibition_user,
+                $exhibition_user->load('documentation'),
                 'Create Exhibition User successfully'
             );
         } catch (ValidationException $error) {
@@ -81,12 +89,18 @@ class ExhibitionController extends Controller
                 'description' => ['required', 'string'],                
                 'year' => ['required', 'string'],                
                 'width' => ['required', 'string'],
-                'height' => ['required', 'string'],                
+                'height' => ['required', 'string'], 
+                'url' => 'required',                
             ]);
 
             $id = Auth::id();
 
+            $photoFile = $request->file('url');
+            $photoPath = $photoFile->storeAs('public/exhibition/'.str_replace(' ','_',Auth::user()->name), str_replace(' ','_',$photoFile->getClientOriginalName()));
+
+
             $edit = Exhibition::where('user_id',$id)->first();
+            $editdok = DocumentationExhibition::where('user_id',$id)->first();
 
             if (!$edit) {
                 return ResponseFormatter::error(
@@ -106,8 +120,12 @@ class ExhibitionController extends Controller
                 'youtube' => $request->youtube,
             ]);
 
+            $editdok->update([
+                'url' => $photoPath,
+            ]);
+
             return ResponseFormatter::success(
-                $edit,
+                $edit->load('documentation'),
                 'Edit Exhibition User success'
             );
 

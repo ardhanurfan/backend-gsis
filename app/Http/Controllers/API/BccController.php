@@ -155,7 +155,8 @@ class BccController extends Controller
             unlink(public_path(str_replace(config('app.url'),'',$edit->ktm_url)));
             $ktm_path = $ktm_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ktm_url->getClientOriginalName()));
             $edit->update([
-                'ktm_url'=>$ktm_path
+                'ktm_url'=>$ktm_path,
+                'approve_ktm'=>'WAITING'
             ]);
         }
 
@@ -164,7 +165,8 @@ class BccController extends Controller
             unlink(public_path(str_replace(config('app.url'),'',$edit->ss_follow_url)));
             $ss_follow_path = $ss_follow_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ss_follow_url->getClientOriginalName()));
             $edit->update([
-                'ss_follow_url'=>$ss_follow_path
+                'ss_follow_url'=>$ss_follow_path,
+                'approve_follow'=>'WAITING'
             ]);
         }
 
@@ -173,7 +175,8 @@ class BccController extends Controller
             unlink(public_path(str_replace(config('app.url'),'',$edit->ss_poster_url)));
             $ss_poster_path = $ss_poster_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$ss_poster_url->getClientOriginalName()));
             $edit->update([
-                'ss_poster_url'=>$ss_poster_path
+                'ss_poster_url'=>$ss_poster_path,
+                'approve_poster'=>'WAITING'
             ]);
         }
         
@@ -182,7 +185,8 @@ class BccController extends Controller
             unlink(public_path(str_replace(config('app.url'),'',$edit->payment_url)));
             $payment_path = $payment_url->storeAs('public/bcc/'.str_replace(' ','_',$name), str_replace(' ','_',$payment_url->getClientOriginalName()));
             $edit->update([
-                'payment_url'=>$payment_path
+                'payment_url'=>$payment_path,
+                'approve_payment'=>'WAITING'
             ]);
         }
 
@@ -464,7 +468,8 @@ class BccController extends Controller
                 unlink(public_path(str_replace(config('app.url'),'',$team->payment_url)));
                 $payment_path = $payment_url->storeAs('public/bcc/team/'.str_replace(' ','_',$team->team_name), str_replace(' ','_',$payment_url->getClientOriginalName()));
                 $team->update([
-                    'payment_url'=>$payment_path
+                    'payment_url'=>$payment_path,
+                    'approve_payment'=>'WAITING'
                 ]);
             }
             
