@@ -75,6 +75,33 @@ class AnnouncementController extends Controller
                 'description' => $request->description,
                 'status' => $request->status,
             ]);
+
+            // Kirim ke email
+            if ($request->status == "SENT") {
+                if ($request->type == "Ceremony") {
+                    $users = Ceremony::join('users', 'ceremonies.user_id', '=', 'users.id')->get();
+
+                    Notification::send($users, new AnnouncementEmail($request->description));
+                    
+                } else if ($request->type == "Exhibition") {
+                    $users = Exhibition::join('users', 'exhibitions.user_id', '=', 'users.id')->where('status', 'ACTIVE')->get();
+
+                    Notification::send($users, new AnnouncementEmail($request->description));
+                } else if ($request->type == "BCC") {
+                    $users = BccUser::join('users', 'bcc_users.user_id', '=', 'users.id')->where('status', 'ACTIVE')->get();
+
+                    Notification::send($users, new AnnouncementEmail($request->description));
+                } else if ($request->type == "GSIC") {
+                    $users = GsicTeam::join('gsic_users', 'gsic_teams.id', '=', 'gsic_users.user_id')->join('users', 'gsic_users.user_id', '=', 'users.id')->where('status', 'ACTIVE')->get();
+
+                    Notification::send($users, new AnnouncementEmail($request->description));
+                } else {
+                    $users = User::all();
+                    
+                    Notification::send($users, new AnnouncementEmail($request->description));
+                }
+            }
+
             return ResponseFormatter::success(
                 $announce,
                 'Create announcement User successfully'
@@ -120,19 +147,20 @@ class AnnouncementController extends Controller
             // Kirim ke email
             if ($request->status == "SENT") {
                 if ($request->type == "Ceremony") {
-                    $users = Ceremony::join('users', 'ceremonies.user_id', '=', 'users.id');
+                    $users = Ceremony::join('users', 'ceremonies.user_id', '=', 'users.id')->get();
 
                     Notification::send($users, new AnnouncementEmail($request->description));
+                    
                 } else if ($request->type == "Exhibition") {
-                    $users = Exhibition::join('users', 'exhibitions.user_id', '=', 'users.id')->where('status', 'ACTIVE');
+                    $users = Exhibition::join('users', 'exhibitions.user_id', '=', 'users.id')->where('status', 'ACTIVE')->get();
 
                     Notification::send($users, new AnnouncementEmail($request->description));
                 } else if ($request->type == "BCC") {
-                    $users = BccUser::join('users', 'bcc_users.user_id', '=', 'users.id')->where('status', 'ACTIVE');
+                    $users = BccUser::join('users', 'bcc_users.user_id', '=', 'users.id')->where('status', 'ACTIVE')->get();
 
                     Notification::send($users, new AnnouncementEmail($request->description));
                 } else if ($request->type == "GSIC") {
-                    $users = GsicTeam::join('gsic_users', 'gsic_teams.id', '=', 'gsic_users.user_id')->join('users', 'gsic_users.user_id', '=', 'users.id')->where('status', 'ACTIVE');
+                    $users = GsicTeam::join('gsic_users', 'gsic_teams.id', '=', 'gsic_users.user_id')->join('users', 'gsic_users.user_id', '=', 'users.id')->where('status', 'ACTIVE')->get();
 
                     Notification::send($users, new AnnouncementEmail($request->description));
                 } else {

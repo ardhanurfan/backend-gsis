@@ -5,11 +5,13 @@ namespace App\Models;
 use App\Traits\CompositeKey;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 
 class GsicUser extends Model
 {
     use HasFactory;
+    use Notifiable;
 
     public $table = 'gsic_users';
     protected $primaryKey = 'user_id';

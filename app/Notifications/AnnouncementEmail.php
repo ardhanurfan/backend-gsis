@@ -12,6 +12,7 @@ class AnnouncementEmail extends Notification
     use Queueable;
 
     private $messages;
+    private $name;
 
     /**
      * Create a new notification instance.
