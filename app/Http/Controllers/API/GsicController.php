@@ -43,7 +43,7 @@ class GsicController extends Controller
     function myTeam(Request $request){
         $id = Auth::id();
         $team_id = GsicUser::where('user_id',$id)->first()->team_id;
-        $gsic_team = GsicTeam::with('users')->where('id',$team_id)->first();
+        $gsic_team = GsicTeam::with(['users','submissions','users.user'])->where('id',$team_id)->first();
         if ($gsic_team) {
             return ResponseFormatter::success(
                 $gsic_team,
