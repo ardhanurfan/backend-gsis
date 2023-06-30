@@ -40,6 +40,11 @@ class GsicController extends Controller
         );
     }
 
+    function inviteMember() {
+        $users = User::whereNotIn('id', GsicUser::select('user_id'))->get();
+        return ResponseFormatter::success($users, 'Get user data success');
+    }
+
     function myTeam(Request $request){
         $id = Auth::id();
         $team_id = GsicUser::where('user_id',$id)->first()->team_id;

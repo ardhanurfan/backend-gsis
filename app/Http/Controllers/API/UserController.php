@@ -324,9 +324,4 @@ class UserController extends Controller
             );
         }
     }
-
-    function getAll() {
-        $users = User::all();
-        return ResponseFormatter::success($users, 'Get user data success');
-    }
 }
