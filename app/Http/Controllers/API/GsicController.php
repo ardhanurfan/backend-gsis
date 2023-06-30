@@ -32,7 +32,7 @@ class GsicController extends Controller
                 );
             }
         }
-        $gsic_team = GsicTeam::with('users');
+        $gsic_team = GsicTeam::with(['users','submissions','users.user']);
         return ResponseFormatter::success(
             $gsic_team->get(),
             'Data peserta berhasil diambil' 
