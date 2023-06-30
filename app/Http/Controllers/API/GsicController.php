@@ -16,22 +16,23 @@ class GsicController extends Controller
 {
     function all(Request $request){
         $team_id = $request->input('team_id');
+        $user_id = $request->input('user_id');
         
         if ($team_id){
-            $gsic_team = GsicTeam::with('users')->where('id',$team_id)->first();
-            if ($gsic_team) {
-                return ResponseFormatter::success(
-                    $gsic_team,
-                    'Data peserta berhasil diambil' 
-                );
-            }else{
-                return ResponseFormatter::error(
-                    null,
-                    'Data peserta tidak ada',
-                    404
-                );
-            }
+            $gsic_team = GsicTeam::with(['users', 'submissions'])->where('id',$team_id)->first();
+            return ResponseFormatter::success(
+                $gsic_team,
+                'Data peserta berhasil diambil' 
+            );
         }
+        if ($user_id) {
+            $gsic_user = GsicUser::where('user_id', $user_id)->first();
+            return ResponseFormatter::success(
+                $gsic_user,
+                'Data peserta berhasil diambil' 
+            );
+        }
+
         $gsic_team = GsicTeam::with(['users','submissions','users.user']);
         return ResponseFormatter::success(
             $gsic_team->get(),

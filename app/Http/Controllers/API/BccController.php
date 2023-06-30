@@ -22,18 +22,10 @@ class BccController extends Controller
         
         if ($user_id){
             $bcc_user = BccUser::with('user')->where('user_id',$user_id)->first();
-            if ($bcc_user) {
-                return ResponseFormatter::success(
-                    $bcc_user,
-                    'Data peserta berhasil diambil' 
-                );
-            }else{
-                return ResponseFormatter::error(
-                    null,
-                    'Data peserta tidak ada',
-                    404
-                );
-            }
+            return ResponseFormatter::success(
+                $bcc_user,
+                'Data peserta berhasil diambil' 
+            );
         }
         $bcc_user = BccUser::with('user');
         return ResponseFormatter::success(

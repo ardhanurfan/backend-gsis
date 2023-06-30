@@ -18,20 +18,10 @@ class CeremonyController extends Controller
 
         if($user_id){
             $cer_user = Ceremony::with('user')->where('user_id',$user_id)->first();
-
-            if($cer_user){
-                return ResponseFormatter::success(
-                    $cer_user,
-                    'Data peserta berhasil diambil' 
-                );
-            }
-            else{
-                return ResponseFormatter::error(
-                    null,
-                    'Data tidak ada',
-                    404
-                );
-            }
+            return ResponseFormatter::success(
+                $cer_user,
+                'Data peserta berhasil diambil' 
+            );
         }
         $cer_user = Ceremony::with('user');
 

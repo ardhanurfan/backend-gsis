@@ -17,18 +17,10 @@ class ExhibitionController extends Controller
         
         if ($user_id){
             $exhibition_user = Exhibition::with(['user','documentation'])->where('user_id',$user_id)->first();
-            if ($exhibition_user) {
-                return ResponseFormatter::success(
-                    $exhibition_user,
-                    'Data peserta berhasil diambil' 
-                );
-            }else{
-                return ResponseFormatter::error(
-                    null,
-                    'Data peserta tidak ada',
-                    404
-                );
-            }
+            return ResponseFormatter::success(
+                $exhibition_user,
+                'Data peserta berhasil diambil' 
+            );
         }
         $exhibition_user = Exhibition::with(['user','documentation']);
         return ResponseFormatter::success(
