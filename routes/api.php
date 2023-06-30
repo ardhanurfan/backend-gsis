@@ -47,7 +47,7 @@ Route::post('edit-exhibition-admin', [ExhibitionController::class,'editFromAdmin
 
 Route::post('forgot-password', [UserController::class, 'forgotPassword']);
 Route::post('reset-password', [UserController::class, 'resetPassword']);
-Route::post('get-all-users', [UserController::class, 'getAll']);
+Route::get('get-all-users', [UserController::class, 'getAll']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [UserController::class, 'get']);
