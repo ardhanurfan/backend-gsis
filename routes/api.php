@@ -38,6 +38,7 @@ Route::post('edit-bcc-team-from-admin', [BccController::class, 'editFromAdminTea
 Route::get('gsic', [GsicController::class, 'all']);
 Route::post('edit-gsic-user', [GsicController::class,'editFromUser']);
 Route::post('edit-gsic-admin', [GsicController::class,'editFromAdmin']);
+Route::get('get-gsic-invite', [GsicController::class, 'inviteMember']);
 
 Route::get('ceremony',[CeremonyController::class, 'all']);
 Route::post('edit-ceremony-admin', [CeremonyController::class,'adminEdit']);
@@ -47,7 +48,6 @@ Route::post('edit-exhibition-admin', [ExhibitionController::class,'editFromAdmin
 
 Route::post('forgot-password', [UserController::class, 'forgotPassword']);
 Route::post('reset-password', [UserController::class, 'resetPassword']);
-Route::get('get-all-users', [UserController::class, 'getAll']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [UserController::class, 'get']);
