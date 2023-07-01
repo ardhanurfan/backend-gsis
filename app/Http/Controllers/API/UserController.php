@@ -359,7 +359,16 @@ class UserController extends Controller
                 'password' => Hash::make($request->password)
             ]);
 
-            return ResponseFormatter::success(null, 'Password Changed');
+            // delete all previous token
+            $user->tokens()->delete();
+
+            $tokenResult = $user->createToken('authToken')->plainTextToken;
+
+            return ResponseFormatter::success([
+                'acess_token' => $tokenResult,
+                'token_type' => 'Bearer',
+                'user' => $user
+            ], 'Password Changed');
         } catch (ValidationException $error) {
             return ResponseFormatter::error([
                 'message' => 'Something when wrong',
