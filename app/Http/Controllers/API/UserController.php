@@ -268,7 +268,7 @@ class UserController extends Controller
         try {
             // Validate and Check
             $request->validate([
-                'password' => ['required', 'string', Password::defaults()->uncompromised()],
+                'password' => ['required', 'string', Password::defaults()],
                 'confirmPassword' => ['required', 'string'],
                 'token' => ['required', 'integer'],
             ]);
@@ -320,6 +320,52 @@ class UserController extends Controller
                 'error' => array_values($error->errors())[0][0],    
             ], 
                 'Reset Password Failed', 
+                500,
+            );
+        }
+    }
+
+    public function changePassword(Request $request)
+    {
+        try {
+            // Validate and Check
+            $request->validate([
+                'password' => ['required', 'string', Password::defaults()],
+                'confirmPassword' => ['required', 'string'],
+            ]);
+
+            if ($request->password != $request->confirmPassword) {
+                return ResponseFormatter::error([
+                    'message' => 'Something when wrong',
+                    'error' => "Password not match",    
+                ], 
+                    'Change Password Failed', 
+                    500,
+                );
+            }
+
+            $user = User::where('id', Auth::id())->first();
+
+            if (!$user) {
+                return ResponseFormatter::error([
+                    'error' => 'User not found!',    
+                ], 
+                    'No Record Found', 
+                    404,
+                );
+            }
+
+            $user->update([
+                'password' => Hash::make($request->password)
+            ]);
+
+            return ResponseFormatter::success(null, 'Password Changed');
+        } catch (ValidationException $error) {
+            return ResponseFormatter::error([
+                'message' => 'Something when wrong',
+                'error' => array_values($error->errors())[0][0],    
+            ], 
+                'Reset Password Failed!', 
                 500,
             );
         }

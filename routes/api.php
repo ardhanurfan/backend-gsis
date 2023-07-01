@@ -53,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [UserController::class, 'get']);
     Route::post('logout', [UserController::class, 'logout']);
     Route::post('edit-profile', [UserController::class, 'editProfile']);
+    Route::post('change-password', [UserController::class, 'changePassword']);
     
     Route::post('register-ceremony', [CeremonyController::class,'register']);
     Route::post('edit-ceremony-user', [CeremonyController::class,'userEdit']);
