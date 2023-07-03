@@ -12,6 +12,7 @@ use App\Models\GsicTeam;
 use App\Models\GsicUser;
 use App\Models\User;
 use App\Notifications\AnnouncementEmail;
+use App\Notifications\AnnouncementEmailLink;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
@@ -81,24 +82,43 @@ class AnnouncementController extends Controller
                 if ($request->type == "Ceremony") {
                     $users = Ceremony::join('users', 'ceremonies.user_id', '=', 'users.id')->get();
 
-                    Notification::send($users, new AnnouncementEmail($request->description));
-                    
+                    if ($request->link) {
+                        Notification::send($users, new AnnouncementEmailLink($request->description, $request->link));
+                    } else {
+                        Notification::send($users, new AnnouncementEmail($request->description));
+                    }
                 } else if ($request->type == "Exhibition") {
                     $users = Exhibition::join('users', 'exhibitions.user_id', '=', 'users.id')->where('status', 'ACTIVE')->get();
 
-                    Notification::send($users, new AnnouncementEmail($request->description));
+                    if ($request->link) {
+                        Notification::send($users, new AnnouncementEmailLink($request->description, $request->link));
+                    } else {
+                        Notification::send($users, new AnnouncementEmail($request->description));
+                    }
                 } else if ($request->type == "BCC") {
                     $users = BccUser::join('users', 'bcc_users.user_id', '=', 'users.id')->where('status', 'ACTIVE')->get();
 
-                    Notification::send($users, new AnnouncementEmail($request->description));
+                    if ($request->link) {
+                        Notification::send($users, new AnnouncementEmailLink($request->description, $request->link));
+                    } else {
+                        Notification::send($users, new AnnouncementEmail($request->description));
+                    }
                 } else if ($request->type == "GSIC") {
                     $users = GsicTeam::join('gsic_users', 'gsic_teams.id', '=', 'gsic_users.user_id')->join('users', 'gsic_users.user_id', '=', 'users.id')->where('status', 'ACTIVE')->get();
 
-                    Notification::send($users, new AnnouncementEmail($request->description));
+                    if ($request->link) {
+                        Notification::send($users, new AnnouncementEmailLink($request->description, $request->link));
+                    } else {
+                        Notification::send($users, new AnnouncementEmail($request->description));
+                    }
                 } else {
                     $users = User::all();
                     
-                    Notification::send($users, new AnnouncementEmail($request->description));
+                    if ($request->link) {
+                        Notification::send($users, new AnnouncementEmailLink($request->description, $request->link));
+                    } else {
+                        Notification::send($users, new AnnouncementEmail($request->description));
+                    }
                 }
             }
 
@@ -149,24 +169,43 @@ class AnnouncementController extends Controller
                 if ($request->type == "Ceremony") {
                     $users = Ceremony::join('users', 'ceremonies.user_id', '=', 'users.id')->get();
 
-                    Notification::send($users, new AnnouncementEmail($request->description));
-                    
+                    if ($request->link) {
+                        Notification::send($users, new AnnouncementEmailLink($request->description, $request->link));
+                    } else {
+                        Notification::send($users, new AnnouncementEmail($request->description));
+                    }
                 } else if ($request->type == "Exhibition") {
                     $users = Exhibition::join('users', 'exhibitions.user_id', '=', 'users.id')->where('status', 'ACTIVE')->get();
 
-                    Notification::send($users, new AnnouncementEmail($request->description));
+                    if ($request->link) {
+                        Notification::send($users, new AnnouncementEmailLink($request->description, $request->link));
+                    } else {
+                        Notification::send($users, new AnnouncementEmail($request->description));
+                    }
                 } else if ($request->type == "BCC") {
                     $users = BccUser::join('users', 'bcc_users.user_id', '=', 'users.id')->where('status', 'ACTIVE')->get();
 
-                    Notification::send($users, new AnnouncementEmail($request->description));
+                    if ($request->link) {
+                        Notification::send($users, new AnnouncementEmailLink($request->description, $request->link));
+                    } else {
+                        Notification::send($users, new AnnouncementEmail($request->description));
+                    }
                 } else if ($request->type == "GSIC") {
                     $users = GsicTeam::join('gsic_users', 'gsic_teams.id', '=', 'gsic_users.user_id')->join('users', 'gsic_users.user_id', '=', 'users.id')->where('status', 'ACTIVE')->get();
 
-                    Notification::send($users, new AnnouncementEmail($request->description));
+                    if ($request->link) {
+                        Notification::send($users, new AnnouncementEmailLink($request->description, $request->link));
+                    } else {
+                        Notification::send($users, new AnnouncementEmail($request->description));
+                    }
                 } else {
                     $users = User::all();
                     
-                    Notification::send($users, new AnnouncementEmail($request->description));
+                    if ($request->link) {
+                        Notification::send($users, new AnnouncementEmailLink($request->description, $request->link));
+                    } else {
+                        Notification::send($users, new AnnouncementEmail($request->description));
+                    }
                 }
             }
 
