@@ -21,5 +21,6 @@ class Announcement extends Model
         'type',
         'description',
         'status',
+        'link',
     ];
 }
