@@ -75,6 +75,7 @@ class AnnouncementController extends Controller
                 'type' => $request->type,
                 'description' => $request->description,
                 'status' => $request->status,
+                'link' => $request->link,
             ]);
 
             // Kirim ke email
@@ -161,6 +162,7 @@ class AnnouncementController extends Controller
                 'type' => $request->type,
                 'description' => $request->description,
                 'status' => $request->status,
+                'link' => $request->link,
             ]);
 
 
