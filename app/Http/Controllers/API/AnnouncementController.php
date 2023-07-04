@@ -21,9 +21,9 @@ use Illuminate\Validation\ValidationException;
 class AnnouncementController extends Controller
 {
     function all(Request $request){
-        $announce =  Announcement::all();
+        $announce =  Announcement::orderBy('updated_at', 'DESC')->get();
         return ResponseFormatter::success(
-            $announce->orderBy('updated_at', 'DESC'),
+            $announce,
             'Data announcement berhasil diambil' 
         );
     }
