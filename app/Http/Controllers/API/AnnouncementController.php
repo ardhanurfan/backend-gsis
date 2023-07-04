@@ -23,7 +23,7 @@ class AnnouncementController extends Controller
     function all(Request $request){
         $announce =  Announcement::all();
         return ResponseFormatter::success(
-            $announce->orderBy('updated_at', 'DESC')->get(),
+            $announce->orderBy('updated_at', 'DESC'),
             'Data announcement berhasil diambil' 
         );
     }
