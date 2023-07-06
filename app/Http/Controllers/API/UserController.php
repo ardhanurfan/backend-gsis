@@ -235,7 +235,7 @@ class UserController extends Controller
             }
 
             // Generate Token
-            $resetToken = str_pad(random_int(1,9999), 16, '0', STR_PAD_LEFT);
+            $resetToken = str_pad(random_int(1,9999999999999999), 16, 0, STR_PAD_LEFT);
 
             if(!$userPassReset = PasswordResetToken::where('email', $request->email)->first()) {
                 PasswordResetToken::create([

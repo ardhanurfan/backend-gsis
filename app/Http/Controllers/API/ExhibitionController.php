@@ -82,18 +82,12 @@ class ExhibitionController extends Controller
                 'year' => ['required', 'string'],                
                 'width' => ['required', 'string'],
                 'height' => ['required', 'string'], 
-                'url' => 'required',                
             ]);
 
             $id = Auth::id();
 
-            $photoFile = $request->file('url');
-            $photoPath = $photoFile->storeAs('public/exhibition/'.str_replace(' ','_',Auth::user()->name), str_replace(' ','_',$photoFile->getClientOriginalName()));
-
-
             $edit = Exhibition::where('user_id',$id)->first();
-            $editdok = DocumentationExhibition::where('user_id',$id)->first();
-
+            
             if (!$edit) {
                 return ResponseFormatter::error(
                     null,
@@ -111,10 +105,15 @@ class ExhibitionController extends Controller
                 'twitter' => $request->twitter,
                 'youtube' => $request->youtube,
             ]);
-
-            $editdok->update([
-                'url' => $photoPath,
-            ]);
+            
+            $photoFile = $request->file('url');
+            if ($photoFile) {
+                $photoPath = $photoFile->storeAs('public/exhibition/'.str_replace(' ','_',Auth::user()->name), str_replace(' ','_',$photoFile->getClientOriginalName()));
+                $editdok = DocumentationExhibition::where('user_id',$id)->first();
+                $editdok->update([
+                    'url' => $photoPath,
+                ]);
+            }
 
             return ResponseFormatter::success(
                 $edit->load('documentation'),
