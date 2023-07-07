@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\HtmlString;
 
 class AnnouncementEmailLink extends Notification
 {
@@ -42,7 +43,7 @@ class AnnouncementEmailLink extends Notification
         return (new MailMessage)
                     ->subject('Ganesha Student Innovation Summit')
                     ->greeting('Dear '.$notifiable->name.',')
-                    ->line(nl2br($this->messages))
+                    ->line(new HtmlString(nl2br($this->messages)))
                     ->action('Link', url($this->link));
     }
 
