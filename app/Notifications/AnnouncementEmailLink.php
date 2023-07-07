@@ -42,7 +42,7 @@ class AnnouncementEmailLink extends Notification
         return (new MailMessage)
                     ->subject('Ganesha Student Innovation Summit')
                     ->greeting('Dear '.$notifiable->name.',')
-                    ->line($this->messages)
+                    ->line(nl2br($this->messages))
                     ->action('Link', url($this->link));
     }
 
