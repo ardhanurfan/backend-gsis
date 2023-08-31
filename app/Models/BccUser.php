@@ -26,7 +26,7 @@ class BccUser extends Model
         'team_id',
         'status',
         'papper_url',
-        'stream',
+        'referral',
         'ktm_url',
         'ss_follow_url',
         'ss_poster_url',
@@ -37,32 +37,33 @@ class BccUser extends Model
         'approve_payment',
     ];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     public function getPapperUrlAttribute($url)
     {
-        return $url ? config('app.url').Storage::url($url) : null;
+        return $url ? config('app.url') . Storage::url($url) : null;
     }
 
     public function getKtmUrlAttribute($url)
     {
-        return config('app.url').Storage::url($url);
+        return config('app.url') . Storage::url($url);
     }
 
     public function getSsFollowUrlAttribute($url)
     {
-        return config('app.url').Storage::url($url);
+        return config('app.url') . Storage::url($url);
     }
 
     public function getSsPosterUrlAttribute($url)
     {
-        return config('app.url').Storage::url($url);
+        return config('app.url') . Storage::url($url);
     }
 
     public function getPaymentUrlAttribute($url)
     {
-        return config('app.url').Storage::url($url);
+        return config('app.url') . Storage::url($url);
     }
 }
