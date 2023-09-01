@@ -25,18 +25,21 @@ class GsicTeam extends Model
         'payment_url',
         'status',
         'approve_payment',
+        'referral',
     ];
 
-    public function users() {
+    public function users()
+    {
         return $this->hasMany(GsicUser::class, 'team_id', 'id');
     }
 
-    public function submissions() {
+    public function submissions()
+    {
         return $this->hasMany(GsicSubmission::class, 'team_id', 'id');
     }
 
     public function getPaymentUrlAttribute($url)
     {
-        return config('app.url').Storage::url($url);
+        return config('app.url') . Storage::url($url);
     }
 }
